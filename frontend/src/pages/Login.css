@@ -15,7 +15,7 @@ html, body {
   padding: 20px;
 }
 
-/* Top right login/signup button */
+/* Top right Signup button */
 .top-right {
   position: absolute;
   top: 20px;
@@ -24,72 +24,28 @@ html, body {
 }
 
 .top-signup-button {
-  position: relative;
-  display: inline-block;
   padding: 10px 20px;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 18px;
-  letter-spacing: 0.05em;
-  border-radius: 0.8em;
-  cursor: pointer;
-  border: none;
+  background-color: #015871;
+  color: white;
+  border-radius: 30px;
   text-decoration: none;
-  background: linear-gradient(to right, #8e2de2, #4a00e0);
-  color: ghostwhite;
-  overflow: hidden;
-  z-index: 1;
-  transition: transform 0.2s ease;
+  font-weight: bold;
+  font-size: 14px;
+  transition: 0.3s ease;
 }
 
 .top-signup-button:hover {
-  color: white;
+  background-color: #013d4d;
 }
 
-.top-signup-button:active {
-  transform: scale(0.95);
-}
-
-.top-signup-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  transform: skew(30deg);
-  z-index: 0;
-  transition: all 0.4s cubic-bezier(0.3, 1, 0.8, 1);
-}
-
-.top-signup-button:hover::before {
-  left: 100%;
-}
-
-.top-signup-button span {
-  position: relative;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  padding: 0.8em 1.2em 0.8em 1.05em;
-  transition: color 0.4s;
-}
-
-.top-signup-button svg {
-  width: 1.2em;
-  height: 1.2em;
-  margin-right: 0.5em;
-}
-
-/* Signup Form */
-.signup-form-wrapper {
+/* Login Form */
+.login-form-wrapper {
   z-index: 10;
   width: 100%;
   max-width: 400px;
 }
 
-.signup-form {
+.login-form {
   width: 100%;
 }
 
@@ -169,7 +125,7 @@ html, body {
 
 .wave:nth-of-type(2) {
   top: -175px;
-  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+  animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -.125s infinite, swell 7s ease -1.25s infinite;
   opacity: 1;
 }
 
@@ -184,9 +140,9 @@ html, body {
 
 @keyframes swell {
   0%, 100% {
-    transform: translate3d(0, -25px, 0);
+    transform: translate3d(0,-25px,0);
   }
   50% {
-    transform: translate3d(0, 5px, 0);
+    transform: translate3d(0,5px,0);
   }
 }

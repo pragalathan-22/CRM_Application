@@ -31,46 +31,58 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-// Signup Route
 app.post('/signup', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const existingUser = await User.findOne({ username });
-        if (existingUser) {
-            return res.status(400).send({ message: 'Username already exists' });
-        }
+  try {
+    const { username, password, role } = req.body;
 
-        const hashedPassword = await bcrypt.hash(password, 8);
-        const newUser = new User({ username, password: hashedPassword });
-        await newUser.save();
-
-        res.status(201).send({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).send({ message: 'Error registering user', error });
+    // Only allow Gmail addresses
+    if (!username.endsWith('@gmail.com')) {
+      return res.status(403).send({ message: 'Only Gmail accounts allowed' });
     }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).send({ message: 'Username already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 8);
+    const newUser = new User({
+      username,
+      password: hashedPassword,
+      role: role === 'admin' ? 'admin' : 'user' // Set role
+    });
+
+    await newUser.save();
+
+    res.status(201).send({ message: 'User registered successfully' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error registering user', error });
+  }
 });
 
-// Login Route
+
 app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
 
-        if (!user) {
-            return res.status(404).send({ message: 'User not found' });
-        }
+    if (!user) return res.status(404).send({ message: 'User not found' });
 
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).send({ message: 'Invalid password' });
-        }
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) return res.status(401).send({ message: 'Invalid password' });
 
-        const token = jwt.sign({ username: user.username }, secretKey, { expiresIn: '1h' });
-        res.send({ token });
-    } catch (error) {
-        res.status(500).send({ message: 'Error logging in', error });
-    }
+    const token = jwt.sign(
+      { username: user.username, role: user.role },
+      secretKey,
+      { expiresIn: '1h' }
+    );
+
+    res.send({ token, role: user.role }); // send role to frontend
+  } catch (error) {
+    res.status(500).send({ message: 'Error logging in', error });
+  }
 });
+
 
 // Protected Profile Route
 app.get('/profile', verifyToken, (req, res) => {

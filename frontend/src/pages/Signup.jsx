@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './signup.css';
 
 const Signup = () => {
@@ -34,47 +34,63 @@ const Signup = () => {
   };
 
   return (
-    <div className="signup-container">
-      <form className="signup-form" onSubmit={handleRegister}>
-        <h2 className="form-title">Create Account</h2>
+    <div className="background-container">
+      {/* Top Right Login Button */}
+      <div className="top-right">
+        <Link to="/login" className="top-signup-button">
+          Login
+        </Link>
+      </div>
 
-        <div className="form-group">
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter username"
-            required
-          />
-        </div>
+      {/* Signup Form */}
+      <div className="signup-form-wrapper">
+        <form className="signup-form" onSubmit={handleRegister}>
+          <h2 className="form-title">Create Account</h2>
 
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label>Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter username"
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Re-enter password"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              required
+            />
+          </div>
 
-        <button className="submit-button" type="submit">
-          Register
-        </button>
-      </form>
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Re-enter password"
+              required
+            />
+          </div>
+
+          <button className="submit-button" type="submit">
+            Register
+          </button>
+        </form>
+      </div>
+
+      {/* Ocean Waves */}
+      <div className="ocean">
+        <div className="wave"></div>
+        <div className="wave"></div>
+      </div>
     </div>
   );
 };
