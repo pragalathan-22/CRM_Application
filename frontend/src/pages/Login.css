@@ -1,106 +1,4 @@
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
 
-.background-container {
-  position: relative;
-  height: 100vh;
-  background: radial-gradient(ellipse at center, rgba(255,254,234,1) 0%, rgba(255,254,234,1) 35%, #B7E8EB 100%);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-/* Top right Signup button */
-.top-right {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  z-index: 20;
-}
-
-.top-signup-button {
-  padding: 10px 20px;
-  background-color: #015871;
-  color: white;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  transition: 0.3s ease;
-}
-
-.top-signup-button:hover {
-  background-color: #013d4d;
-}
-
-/* Login Form */
-.login-form-wrapper {
-  z-index: 10;
-  width: 100%;
-  max-width: 400px;
-}
-
-.login-form {
-  width: 100%;
-}
-
-.form-title {
-  font-size: 28px;
-  text-align: center;
-  margin-bottom: 30px;
-  color: #015871;
-}
-
-.form-group {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #333;
-}
-
-.form-group input {
-  padding: 1em;
-  border: none;
-  border-radius: 15px;
-  background-color: #ccc;
-  box-shadow: inset 2px 5px 10px rgba(0, 0, 0, 0.3);
-  transition: 300ms ease-in-out;
-  font-size: 15px;
-}
-
-.form-group input:focus {
-  background-color: white;
-  transform: scale(1.05);
-  outline: none;
-}
-
-.submit-button {
-  padding: 15px;
-  width: 100%;
-  border-radius: 50px;
-  border: none;
-  cursor: pointer;
-  background-color: #015871;
-  color: white;
-  font-weight: bold;
-  font-size: 15px;
-  letter-spacing: 1px;
-  transition: 0.3s ease;
-}
-
-.submit-button:hover {
-  background-color: #013d4d;
-}
 
 /* Ocean Waves */
 .ocean {
@@ -146,3 +44,34 @@ html, body {
     transform: translate3d(0,5px,0);
   }
 }
+
+.top-right {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.top-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  transition: color 0.2s ease-in-out;
+}
+
+.top-link:hover {
+  color: #00ccff;
+}
+
+.top-signup-button {
+  background-color: #00ccff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+

@@ -1,29 +1,93 @@
+// src/router/AppRouter.jsx
 import React, { useContext } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Auth Pages
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+
+// User & Admin Pages
+import Overview from '../pages/Dashboard/Overview';
+import KPIs from '../pages/Dashboard/KPIs';
 import Home from '../pages/Home';
-import Profile from '../pages/Profile';
+import AllContacts from '../pages/Contacts/AllContacts';
+import AddContact from '../pages/Contacts/AddContact';
+
+// Context
 import { AuthContext } from '../context/AuthContext';
 
-const Router = () => {
-  const { user, loading } = useContext(AuthContext);
+// Admin Sidebar Layout
+import Sidebar from '../components/Sidebar';
 
-  if (loading) {
-    return <div>Loading...</div>;
+// Protected Route Component
+const ProtectedRoute = ({ children, adminOnly = false }) => {
+  const { user } = useContext(AuthContext);
+  const role = localStorage.getItem('role');
+
+  if (!user) return <Navigate to="/login" replace />;
+  if (adminOnly && role !== 'admin') return <Navigate to="/home" replace />;
+
+  return children;
+};
+
+// Public Route Component
+const PublicRoute = ({ children }) => {
+  const { user } = useContext(AuthContext);
+  const role = localStorage.getItem('role');
+
+  if (user) {
+    return role === 'admin'
+      ? <Navigate to="/dashboard/overview" replace />
+      : <Navigate to="/home" replace />;
   }
 
+  return children;
+};
+
+// Admin Layout Wrapper
+const AdminLayout = ({ children }) => (
+  <div className="flex">
+    <Sidebar />
+    <main className="flex-1 p-6 bg-gray-50 overflow-y-auto h-screen">{children}</main>
+  </div>
+);
+
+const AppRouter = () => {
+  const renderAdminRoute = (Component) => (
+    <ProtectedRoute adminOnly>
+      <AdminLayout><Component /></AdminLayout>
+    </ProtectedRoute>
+  );
+
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={user ? <Home /> : <Login />} />
-        <Route path="/profile" element={user ? <Profile /> : <Login />} />
+        {/* Public Routes */}
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+
+        {/* Admin Protected Routes */}
+        <Route path="/dashboard/overview" element={renderAdminRoute(Overview)} />
+        <Route path="/dashboard/kpis" element={renderAdminRoute(KPIs)} />
+        <Route path="/contacts/all" element={renderAdminRoute(AllContacts)} />
+        <Route path="/contacts/add" element={renderAdminRoute(AddContact)} />
+
+        {/* User Route */}
+        <Route path="/home" element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        } />
+
+        {/* Fallback Route */}
+        <Route path="*" element={
+          <ProtectedRoute>
+            <Navigate to={localStorage.getItem('role') === 'admin' ? "/dashboard/overview" : "/home"} replace />
+          </ProtectedRoute>
+        } />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 };
 
-export default Router;
+export default AppRouter;
