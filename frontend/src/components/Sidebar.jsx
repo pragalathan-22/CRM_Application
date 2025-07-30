@@ -6,7 +6,7 @@ import {
   Users,
   Flag,
   Handshake,
-  Calendar,
+  Import,
   Mail,
   FileText,
   BarChart3,
@@ -52,7 +52,7 @@ const Sidebar = () => {
       icon: <Flag className="w-5 h-5" />,
       key: 'leads',
       subRoutes: [
-        { name: 'Lead Pipeline', path: '/leads' },
+        { name: 'Lead Pipeline', path: '/leads/all-Leads' },
         { name: 'Add Lead', path: '/leads/add' },
       ],
     },
@@ -66,12 +66,12 @@ const Sidebar = () => {
       ],
     },
     {
-      name: 'Calendar',
-      icon: <Calendar className="w-5 h-5" />,
-      key: 'calendar',
+      name: 'Import',
+      icon: <Import className="w-5 h-5" />,
+      key: 'Import',
       subRoutes: [
-        { name: 'Meetings', path: '/calendar/meetings' },
-        { name: 'Tasks', path: '/calendar/tasks' },
+        { name: 'Tasks', path: '/Import/Import files' },
+        { name: 'Stored Files', path: '/Import/stored-files' },
       ],
     },
     {
