@@ -102,20 +102,32 @@ app.get('/leads', verifyToken, async (req, res) => {
 });
 
 // PUT /leads/:id
+// ✅ Update lead status or paymentStatus
 app.put('/leads/:id', verifyToken, async (req, res) => {
   try {
     const leadId = req.params.id;
-    const { status, paymentStatus } = req.body;
+    const updateData = {};
 
-    const updatedLead = await Lead.findByIdAndUpdate(
-      leadId,
-      { status, paymentStatus },
-      { new: true }
-    );
+    // Update only the provided fields
+    if (req.body.status !== undefined) {
+      updateData.status = req.body.status;
+    }
+    if (req.body.paymentStatus !== undefined) {
+      updateData.paymentStatus = req.body.paymentStatus;
+    }
+
+    const updatedLead = await Lead.findByIdAndUpdate(leadId, updateData, {
+      new: true,
+    });
+
+    if (!updatedLead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
 
     res.json({ message: 'Lead updated successfully', lead: updatedLead });
   } catch (error) {
-    res.status(500).json({ message: 'Update lead error', error });
+    console.error('Update error:', error);
+    res.status(500).json({ message: 'Update failed', error });
   }
 });
 
