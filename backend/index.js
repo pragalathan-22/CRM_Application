@@ -4,24 +4,26 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const User = require('./models/User');
-const { OAuth2Client } = require('google-auth-library');
+const Lead = require('./models/Lead');
+const connectDB = require('./db');
 require('dotenv').config();
 
-const connectDB = require('./db'); // ⬅️ use your db.js
-connectDB(); // ✅ call db connect
-
+connectDB();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const secretKey = process.env.JWT_SECRET || 'defaultsecret';
 
-
-// 🔐 Middleware to verify JWT
+// ✅ Middleware to verify token
 const verifyToken = (req, res, next) => {
-  const token = req.headers.authorization;
-  if (!token) return res.status(403).json({ message: 'No token provided' });
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(403).json({ message: 'No token provided or bad format' });
+  }
+
+  const token = authHeader.split(' ')[1];
 
   try {
     const verified = jwt.verify(token, secretKey);
@@ -32,8 +34,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
-// 📝 Signup: Gmail only
+// ✅ Signup
 app.post('/signup', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -43,9 +44,7 @@ app.post('/signup', async (req, res) => {
     }
 
     const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Username already exists' });
-    }
+    if (existingUser) return res.status(400).json({ message: 'User exists' });
 
     const hashedPassword = await bcrypt.hash(password, 8);
     const role = (username === 'pragalathanabc28@gmail.com') ? 'admin' : 'user';
@@ -55,23 +54,23 @@ app.post('/signup', async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error });
+    res.status(500).json({ message: 'Signup error', error });
   }
 });
 
-
-// 🔑 Login
+// ✅ Login
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(401).json({ message: 'Invalid password' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(401).json({ message: 'Invalid password' });
 
-    const token = jwt.sign({ username: user.username, role: user.role }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ username: user.username, role: user.role }, secretKey, {
+      expiresIn: '2h', // longer token
+    });
 
     res.json({ token, role: user.role });
   } catch (error) {
@@ -79,12 +78,27 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
-// 👤 Protected Route
-app.get('/profile', verifyToken, (req, res) => {
-  res.json({ message: 'Profile access granted', user: req.user });
+// ✅ Add Lead
+app.post('/leads', verifyToken, async (req, res) => {
+  try {
+    const { company, contact, email, quantity, value } = req.body;
+    const newLead = new Lead({ company, contact, email, quantity, value });
+    await newLead.save();
+    console.log('✅ Lead saved:', newLead);
+    res.status(201).json({ message: 'Lead added' });
+  } catch (error) {
+    res.status(500).json({ message: 'Add lead error', error });
+  }
 });
 
+// ✅ Get Leads
+app.get('/leads', verifyToken, async (req, res) => {
+  try {
+    const leads = await Lead.find();
+    res.json(leads);
+  } catch (error) {
+    res.status(500).json({ message: 'Fetch leads error', error });
+  }
+});
 
-// Start server
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));
