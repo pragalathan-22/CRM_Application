@@ -81,8 +81,8 @@ app.post('/login', async (req, res) => {
 // ✅ Add Lead
 app.post('/leads', verifyToken, async (req, res) => {
   try {
-    const { company, contact, email, quantity, value } = req.body;
-    const newLead = new Lead({ company, contact, email, quantity, value });
+    const { company, contact,contactNumber, email,productName, quantity, value } = req.body;
+    const newLead = new Lead({ company, contact,contactNumber, email,productName, quantity, value });
     await newLead.save();
     console.log('✅ Lead saved:', newLead);
     res.status(201).json({ message: 'Lead added' });

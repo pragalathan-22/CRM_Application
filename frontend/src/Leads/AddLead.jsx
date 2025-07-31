@@ -5,7 +5,9 @@ const AddLead = () => {
   const [form, setForm] = useState({
     company: '',
     contact: '',
+    contactNumber: '',
     email: '',
+    productName: '',
     quantity: '',
     value: '',
   });
@@ -16,7 +18,6 @@ const AddLead = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -30,18 +31,18 @@ const AddLead = () => {
         },
       });
 
-      console.log('Lead added:', response.data);
-      alert('Lead added successfully!');
-
+      alert('✅ Lead added successfully!');
       setForm({
         company: '',
         contact: '',
+        contactNumber: '',
         email: '',
+        productName: '',
         quantity: '',
         value: '',
       });
     } catch (error) {
-      console.error('Add lead error:', error);
+      console.error('Error:', error);
       if (error.response?.status === 401) {
         alert('Session expired. Please login again.');
         localStorage.clear();
@@ -53,33 +54,122 @@ const AddLead = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <div className="max-w-xl mx-auto bg-white shadow-lg rounded-xl p-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">➕ Add New Lead</h2>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {['company', 'contact', 'email', 'quantity', 'value'].map((field) => (
-            <div key={field}>
-              <label className="block mb-1 text-sm font-medium text-gray-700 capitalize">
-                {field === 'value' ? 'Deal Value' : field}
-              </label>
-              <input
-                type={field === 'quantity' ? 'number' : 'text'}
-                name={field}
-                value={form[field]}
-                onChange={handleChange}
-                required
-                className="w-full border px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder={field === 'value' ? '$10,000' : `Enter ${field}`}
-              />
-            </div>
-          ))}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white px-4 py-10">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-10">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-4 flex items-center gap-2">
+          <span>➕</span> Add New Lead
+        </h2>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Company */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">🏢 Company</label>
+            <input
+              type="text"
+              name="company"
+              value={form.company}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="e.g. Acme Corp"
+            />
+          </div>
+
+          {/* Contact */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">👤 Contact Name</label>
+            <input
+              type="text"
+              name="contact"
+              value={form.contact}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="John Doe"
+            />
+          </div>
+
+          {/* Contact Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">📞 Contact Number</label>
+            <input
+              type="number"
+              name="contactNumber"
+              value={form.contactNumber}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="9876543210"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">📧 Email</label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="example@gmail.com"
+            />
+          </div>
+
+          {/* Product Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">📦 Product Name</label>
+            <input
+              type="text"
+              name="productName"
+              value={form.productName}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="e.g. Laptop"
+            />
+          </div>
+
+          {/* Quantity */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">🔢 Quantity</label>
+            <input
+              type="number"
+              name="quantity"
+              value={form.quantity}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="10"
+            />
+          </div>
+
+          {/* Value */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">💰 Deal Value</label>
+            <input
+              type="number"
+              name="value"
+              value={form.value}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="50000"
+            />
+          </div>
+        </form>
+
+        {/* Submit Button */}
+        <div className="mt-8">
           <button
             type="submit"
-            className="bg-blue-600 text-white w-full py-2 rounded-md hover:bg-blue-700 transition duration-200"
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition duration-200 w-full md:w-auto"
           >
-            ➕ Add Lead
+            ➕ Submit Lead
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

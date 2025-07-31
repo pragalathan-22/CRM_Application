@@ -4,6 +4,7 @@ import axios from 'axios';
 const Leads = () => {
   const [leads, setLeads] = useState([]);
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterPayment, setFilterPayment] = useState('All');
 
   useEffect(() => {
     fetchLeads();
@@ -14,7 +15,7 @@ const Leads = () => {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:3000/leads', {
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ Correct format
+          Authorization: `Bearer ${token}`,
         },
       });
       setLeads(response.data);
@@ -24,6 +25,9 @@ const Leads = () => {
   };
 
   const handleStatusChange = async (id, newStatus) => {
+    const confirmed = window.confirm(`Are you sure you want to change the status to "${newStatus}"?`);
+    if (!confirmed) return;
+
     try {
       const token = localStorage.getItem('token');
       await axios.put(
@@ -47,6 +51,9 @@ const Leads = () => {
   };
 
   const handlePaymentChange = async (id, newPaymentStatus) => {
+    const confirmed = window.confirm(`Are you sure you want to change the payment status to "${newPaymentStatus}"?`);
+    if (!confirmed) return;
+
     try {
       const token = localStorage.getItem('token');
       await axios.put(
@@ -69,16 +76,12 @@ const Leads = () => {
     }
   };
 
-  const filteredLeads =
-    filterStatus === 'All'
-      ? leads
-      : leads.filter((lead) => lead.status === filterStatus);
-
   const statusStyles = {
     New: 'bg-blue-100 text-blue-700',
     Processing: 'bg-yellow-100 text-yellow-800',
     Delay: 'bg-red-100 text-red-700',
     Completed: 'bg-green-100 text-green-700',
+    Canceled: 'bg-gray-200 text-gray-800', // ✅ Added
   };
 
   const paymentStyles = {
@@ -87,32 +90,50 @@ const Leads = () => {
     Paid: 'bg-green-100 text-green-700',
   };
 
+  const filteredLeads = leads.filter((lead) => {
+    const statusMatch = filterStatus === 'All' || lead.status === filterStatus;
+    const paymentMatch = filterPayment === 'All' || (lead.paymentStatus || 'Not Yet') === filterPayment;
+    return statusMatch && paymentMatch;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-6">
-        {/* Header with Filter */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <h2 className="text-3xl font-bold text-gray-800">📊 Leads Pipeline</h2>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="border border-gray-300 text-sm px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="All">All Status</option>
-            <option value="New">New</option>
-            <option value="Processing">Processing</option>
-            <option value="Delay">Delay</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <div className="flex flex-col md:flex-row items-center gap-3">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-gray-300 text-sm px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="All">All Status</option>
+              <option value="New">New</option>
+              <option value="Processing">Processing</option>
+              <option value="Delay">Delay</option>
+              <option value="Completed">Completed</option>
+              <option value="Canceled">Canceled</option> {/* ✅ Added */}
+            </select>
+            <select
+              value={filterPayment}
+              onChange={(e) => setFilterPayment(e.target.value)}
+              className="border border-gray-300 text-sm px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="All">All Payments</option>
+              <option value="Not Yet">Not Yet</option>
+              <option value="Advanced Paid">Advanced Paid</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full border text-sm text-left rounded-lg overflow-hidden">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
               <tr>
                 <th className="px-6 py-3 border-b">Company</th>
                 <th className="px-6 py-3 border-b">Contact</th>
+                <th className="px-6 py-3 border-b">Contact Number</th>
                 <th className="px-6 py-3 border-b">Email</th>
                 <th className="px-6 py-3 border-b">Status</th>
                 <th className="px-6 py-3 border-b">Quantity</th>
@@ -125,6 +146,7 @@ const Leads = () => {
                 <tr key={lead._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 border-b">{lead.company}</td>
                   <td className="px-6 py-4 border-b">{lead.contact}</td>
+                  <td className="px-6 py-4 border-b">{lead.contactNumber || '-'}</td>
                   <td className="px-6 py-4 border-b">{lead.email}</td>
                   <td className="px-6 py-4 border-b">
                     <select
@@ -132,14 +154,13 @@ const Leads = () => {
                       onChange={(e) =>
                         handleStatusChange(lead._id, e.target.value)
                       }
-                      className={`px-2 py-1 rounded-md font-medium text-xs ${
-                        statusStyles[lead.status] || ''
-                      } border-none`}
+                      className={`px-2 py-1 rounded-md font-medium text-xs ${statusStyles[lead.status] || ''} border-none`}
                     >
                       <option value="New">New</option>
                       <option value="Processing">Processing</option>
                       <option value="Delay">Delay</option>
                       <option value="Completed">Completed</option>
+                      <option value="Canceled">Canceled</option> {/* ✅ Added */}
                     </select>
                   </td>
                   <td className="px-6 py-4 border-b">{lead.quantity}</td>
@@ -152,9 +173,7 @@ const Leads = () => {
                       onChange={(e) =>
                         handlePaymentChange(lead._id, e.target.value)
                       }
-                      className={`px-2 py-1 rounded-md font-medium text-xs ${
-                        paymentStyles[lead.paymentStatus || 'Not Yet']
-                      } border-none`}
+                      className={`px-2 py-1 rounded-md font-medium text-xs ${paymentStyles[lead.paymentStatus || 'Not Yet']} border-none`}
                     >
                       <option value="Not Yet">Not Yet</option>
                       <option value="Advanced Paid">Advanced Paid</option>
@@ -168,7 +187,7 @@ const Leads = () => {
 
           {filteredLeads.length === 0 && (
             <p className="text-center text-gray-500 py-4">
-              No leads found for this status.
+              No leads found for the selected filters.
             </p>
           )}
         </div>
