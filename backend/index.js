@@ -101,4 +101,23 @@ app.get('/leads', verifyToken, async (req, res) => {
   }
 });
 
+// PUT /leads/:id
+app.put('/leads/:id', verifyToken, async (req, res) => {
+  try {
+    const leadId = req.params.id;
+    const { status, paymentStatus } = req.body;
+
+    const updatedLead = await Lead.findByIdAndUpdate(
+      leadId,
+      { status, paymentStatus },
+      { new: true }
+    );
+
+    res.json({ message: 'Lead updated successfully', lead: updatedLead });
+  } catch (error) {
+    res.status(500).json({ message: 'Update lead error', error });
+  }
+});
+
+
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));

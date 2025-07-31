@@ -5,16 +5,16 @@ const Leads = () => {
   const [leads, setLeads] = useState([]);
   const [filterStatus, setFilterStatus] = useState('All');
 
-    useEffect(() => {
-      fetchLeads();
-    }, []);
+  useEffect(() => {
+    fetchLeads();
+  }, []);
 
   const fetchLeads = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get('http://localhost:3000/leads', {
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${token}`, // ✅ Correct format
         },
       });
       setLeads(response.data);
@@ -23,20 +23,50 @@ const Leads = () => {
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    const updatedLeads = leads.map((lead) =>
-      lead._id === id ? { ...lead, status: newStatus } : lead
-    );
-    setLeads(updatedLeads);
-    // Optionally send status update to backend here
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `http://localhost:3000/leads/${id}`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedLeads = leads.map((lead) =>
+        lead._id === id ? { ...lead, status: newStatus } : lead
+      );
+      setLeads(updatedLeads);
+    } catch (error) {
+      console.error('Status update failed:', error);
+      alert('Failed to update status');
+    }
   };
 
-  const handlePaymentChange = (id, newPaymentStatus) => {
-    const updatedLeads = leads.map((lead) =>
-      lead._id === id ? { ...lead, paymentStatus: newPaymentStatus } : lead
-    );
-    setLeads(updatedLeads);
-    // Optionally send payment update to backend here
+  const handlePaymentChange = async (id, newPaymentStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(
+        `http://localhost:3000/leads/${id}`,
+        { paymentStatus: newPaymentStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const updatedLeads = leads.map((lead) =>
+        lead._id === id ? { ...lead, paymentStatus: newPaymentStatus } : lead
+      );
+      setLeads(updatedLeads);
+    } catch (error) {
+      console.error('Payment update failed:', error);
+      alert('Failed to update payment status');
+    }
   };
 
   const filteredLeads =
@@ -102,7 +132,9 @@ const Leads = () => {
                       onChange={(e) =>
                         handleStatusChange(lead._id, e.target.value)
                       }
-                      className={`px-2 py-1 rounded-md font-medium text-xs ${statusStyles[lead.status] || ''} border-none`}
+                      className={`px-2 py-1 rounded-md font-medium text-xs ${
+                        statusStyles[lead.status] || ''
+                      } border-none`}
                     >
                       <option value="New">New</option>
                       <option value="Processing">Processing</option>
