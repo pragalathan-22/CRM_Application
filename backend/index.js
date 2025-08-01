@@ -154,6 +154,20 @@ app.delete('/leads/:id', verifyToken, async (req, res) => {
   }
 });
 
+// ✅ Get a single lead by ID
+app.get('/leads/:id', verifyToken, async (req, res) => {
+  try {
+    const lead = await Lead.findById(req.params.id);
+    if (!lead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
+    res.json(lead);
+  } catch (error) {
+    console.error('❌ Fetch single lead error:', error);
+    res.status(500).json({ message: 'Error fetching lead', error });
+  }
+});
+
 
 
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));

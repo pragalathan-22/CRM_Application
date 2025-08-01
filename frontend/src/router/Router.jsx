@@ -6,24 +6,24 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
 
-// User & Admin Pages
+// Admin Pages
 import Overview from '../pages/Dashboard/Overview';
 import KPIs from '../pages/Dashboard/KPIs';
 import Home from '../pages/Home';
 import AllContacts from '../pages/Contacts/AllContacts';
 import AddContact from '../pages/Contacts/AddContact';
+import ImportFiles from '../Import/ImportFiles';
+import StoredFiles from '../Import/StoredFiles';
+import Leads from '../Leads/Leads';
+import AddLead from '../Leads/AddLead';
 
 // Context
 import { AuthContext } from '../context/AuthContext';
 
 // Admin Sidebar Layout
 import Sidebar from '../components/Sidebar';
-import ImportFiles from '../Import/ImportFiles';
-import StoredFiles from '../Import/StoredFiles';
-import Leads from '../Leads/Leads';
-import AddLead from '../Leads/AddLead';
 
-// Protected Route Component
+// 🔒 Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user } = useContext(AuthContext);
   const role = localStorage.getItem('role');
@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   return children;
 };
 
-// Public Route Component
+// 🌐 Public Route Component
 const PublicRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
   const role = localStorage.getItem('role');
@@ -48,7 +48,7 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-// Admin Layout Wrapper
+// 📦 Admin Layout Wrapper
 const AdminLayout = ({ children }) => (
   <div className="flex">
     <Sidebar />
@@ -56,6 +56,7 @@ const AdminLayout = ({ children }) => (
   </div>
 );
 
+// 📌 Main Router
 const AppRouter = () => {
   const renderAdminRoute = (Component) => (
     <ProtectedRoute adminOnly>
@@ -75,10 +76,10 @@ const AppRouter = () => {
         <Route path="/dashboard/kpis" element={renderAdminRoute(KPIs)} />
         <Route path="/contacts/all" element={renderAdminRoute(AllContacts)} />
         <Route path="/contacts/add" element={renderAdminRoute(AddContact)} />
-        <Route path="/Import/Import files" element={renderAdminRoute(ImportFiles)}/>
-        <Route path="/Import/stored-files" element={renderAdminRoute(StoredFiles)}/> 
-        <Route path="/leads/all-Leads" element={renderAdminRoute(Leads)} />
-        <Route path="/leads/add" element={renderAdminRoute(AddLead)} /> 
+        <Route path="/import/upload" element={renderAdminRoute(ImportFiles)} />
+        <Route path="/import/stored-files" element={renderAdminRoute(StoredFiles)} />
+        <Route path="/leads/all-leads" element={renderAdminRoute(Leads)} />
+        <Route path="/leads/add" element={renderAdminRoute(AddLead)} /> {/* ✅ Handles both add & edit */}
 
         {/* User Route */}
         <Route path="/home" element={

@@ -1,5 +1,7 @@
+// src/pages/Leads.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Leads = () => {
   const [leads, setLeads] = useState([]);
@@ -10,6 +12,7 @@ const Leads = () => {
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchLeads();
@@ -194,6 +197,7 @@ const Leads = () => {
                 <th className="px-6 py-3 border-b">Quantity</th>
                 <th className="px-6 py-3 border-b">Value</th>
                 <th className="px-6 py-3 border-b">Payment</th>
+                <th className="px-6 py-3 border-b">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -237,6 +241,16 @@ const Leads = () => {
                       <option value="Paid">Paid</option>
                     </select>
                   </td>
+<td className="px-6 py-4 border-b">
+  <button
+    onClick={() => navigate(`/leads/add?id=${lead._id}`)}
+    className="text-blue-600 hover:underline"
+  >
+    Edit
+  </button>
+</td>
+
+
                 </tr>
               ))}
             </tbody>
