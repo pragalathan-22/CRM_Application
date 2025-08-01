@@ -78,46 +78,55 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ✅ Add Lead
+// ✅ Add a Lead
 app.post('/leads', verifyToken, async (req, res) => {
   try {
-    const { company, contact,contactNumber, email,productName, quantity, value } = req.body;
-    const newLead = new Lead({ company, contact,contactNumber, email,productName, quantity, value });
+    const { company, contact, contactNumber, email, productName, quantity, value,address } = req.body;
+
+    if (!company || !contact || !email || !quantity || !value || !address ) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const newLead = new Lead({
+      company,
+      contact,
+      contactNumber,
+      email,
+      productName,
+      quantity,
+      value,
+      address,
+    });
+
     await newLead.save();
     console.log('✅ Lead saved:', newLead);
-    res.status(201).json({ message: 'Lead added' });
+    res.status(201).json({ message: 'Lead added', lead: newLead });
   } catch (error) {
+    console.error('❌ Add lead error:', error);
     res.status(500).json({ message: 'Add lead error', error });
   }
 });
 
-// ✅ Get Leads
+// ✅ Get All Leads
 app.get('/leads', verifyToken, async (req, res) => {
   try {
-    const leads = await Lead.find();
+    const leads = await Lead.find().sort({ createdAt: -1 }); // Latest first
     res.json(leads);
   } catch (error) {
+    console.error('❌ Fetch leads error:', error);
     res.status(500).json({ message: 'Fetch leads error', error });
   }
 });
 
-// PUT /leads/:id
-// ✅ Update lead status or paymentStatus
+// ✅ Update lead by ID (status, paymentStatus, or any field)
 app.put('/leads/:id', verifyToken, async (req, res) => {
   try {
     const leadId = req.params.id;
-    const updateData = {};
-
-    // Update only the provided fields
-    if (req.body.status !== undefined) {
-      updateData.status = req.body.status;
-    }
-    if (req.body.paymentStatus !== undefined) {
-      updateData.paymentStatus = req.body.paymentStatus;
-    }
+    const updateData = req.body;
 
     const updatedLead = await Lead.findByIdAndUpdate(leadId, updateData, {
       new: true,
+      runValidators: true,
     });
 
     if (!updatedLead) {
@@ -126,10 +135,25 @@ app.put('/leads/:id', verifyToken, async (req, res) => {
 
     res.json({ message: 'Lead updated successfully', lead: updatedLead });
   } catch (error) {
-    console.error('Update error:', error);
+    console.error('❌ Update lead error:', error);
     res.status(500).json({ message: 'Update failed', error });
   }
 });
+
+// ✅ Delete a lead by ID
+app.delete('/leads/:id', verifyToken, async (req, res) => {
+  try {
+    const deletedLead = await Lead.findByIdAndDelete(req.params.id);
+    if (!deletedLead) {
+      return res.status(404).json({ message: 'Lead not found' });
+    }
+    res.json({ message: 'Lead deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete lead error:', error);
+    res.status(500).json({ message: 'Delete failed', error });
+  }
+});
+
 
 
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));

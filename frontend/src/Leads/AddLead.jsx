@@ -10,6 +10,7 @@ const AddLead = () => {
     productName: '',
     quantity: '',
     value: '',
+    address: '', // ✅ Added address here
   });
 
   const handleChange = (e) => {
@@ -40,6 +41,7 @@ const AddLead = () => {
         productName: '',
         quantity: '',
         value: '',
+        address: '', // ✅ Clear address on reset
       });
     } catch (error) {
       console.error('Error:', error);
@@ -75,7 +77,7 @@ const AddLead = () => {
             />
           </div>
 
-          {/* Contact */}
+          {/* Contact Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">👤 Contact Name</label>
             <input
@@ -156,6 +158,20 @@ const AddLead = () => {
               required
               className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="50000"
+            />
+          </div>
+
+          {/* Address - Full Width */}
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700">📍 Address</label>
+            <textarea
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              required
+              rows="3"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              placeholder="Enter full address here"
             />
           </div>
         </form>
