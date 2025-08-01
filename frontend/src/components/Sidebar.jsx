@@ -70,7 +70,7 @@ const Sidebar = () => {
       icon: <Import className="w-5 h-5" />,
       key: 'Import',
       subRoutes: [
-        { name: 'Tasks', path: '/Import/Import files' },
+        { name: 'Tasks', path: '/import/upload' },
         { name: 'Stored Files', path: '/Import/stored-files' },
       ],
     },

@@ -15,29 +15,40 @@ const ImportFiles = () => {
       const wb = XLSX.read(bstr, { type: 'binary' });
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
+
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      const headers = data[0];
+      const headers = data[0]?.map(h => h?.toString().trim()); // Trim headers
       const rows = data.slice(1);
-      const formatted = rows.map((row) => {
+
+      // Remove empty rows
+      const nonEmptyRows = rows.filter(row =>
+        row.some(cell => cell !== undefined && cell !== null && cell !== '')
+      );
+
+      const formatted = nonEmptyRows.map((row) => {
         const obj = {};
         headers.forEach((h, i) => {
-          obj[h] = row[i];
+          obj[h] = row[i] !== undefined ? row[i] : '';
         });
         return obj;
       });
+
       setExcelData(formatted);
       setMessage(`✅ Successfully imported ${formatted.length} rows`);
     };
+
     reader.readAsBinaryString(file);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-10">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-8">
+      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">📥 Import Excel File</h2>
 
         <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium text-gray-700">Upload Excel File (.xlsx)</label>
+          <label className="block mb-2 text-sm font-medium text-gray-700">
+            Upload Excel File (.xlsx)
+          </label>
           <input
             type="file"
             accept=".xlsx,.xls"
@@ -59,10 +70,12 @@ const ImportFiles = () => {
                 </tr>
               </thead>
               <tbody>
-                {excelData.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    {Object.values(row).map((val, i) => (
-                      <td key={i} className="px-4 py-2 border-b">{val}</td>
+                {excelData.map((row, rowIdx) => (
+                  <tr key={rowIdx} className="hover:bg-gray-50">
+                    {Object.values(row).map((val, colIdx) => (
+                      <td key={colIdx} className="px-4 py-2 border-b">
+                        {val}
+                      </td>
                     ))}
                   </tr>
                 ))}
