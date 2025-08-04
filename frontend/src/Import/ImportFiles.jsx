@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const ImportFiles = () => {
   const [excelData, setExcelData] = useState([]);
   const [message, setMessage] = useState('');
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       const bstr = evt.target.result;
       const wb = XLSX.read(bstr, { type: 'binary' });
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
 
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      const headers = data[0]?.map(h => h?.toString().trim()); // Trim headers
+      const headers = data[0]?.map(h => h?.toString().trim());
       const rows = data.slice(1);
 
-      // Remove empty rows
       const nonEmptyRows = rows.filter(row =>
         row.some(cell => cell !== undefined && cell !== null && cell !== '')
       );
@@ -34,7 +34,15 @@ const ImportFiles = () => {
       });
 
       setExcelData(formatted);
-      setMessage(`✅ Successfully imported ${formatted.length} rows`);
+      setMessage(`✅ Parsed ${formatted.length} rows`);
+
+      try {
+        await axios.post('http://localhost:3000/records/upload', formatted);
+        setMessage(`✅ Uploaded ${formatted.length} rows to MongoDB`);
+      } catch (err) {
+        console.error(err);
+        setMessage('❌ Failed to upload to server');
+      }
     };
 
     reader.readAsBinaryString(file);
