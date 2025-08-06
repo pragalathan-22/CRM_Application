@@ -22,6 +22,8 @@ import { AuthContext } from '../context/AuthContext';
 
 // Admin Sidebar Layout
 import Sidebar from '../components/Sidebar';
+import EmailCampaign from '../campaigns/EmailCampaign';
+import SmsCampaign from '../campaigns/SmsCampaign';
 
 // 🔒 Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -80,6 +82,8 @@ const AppRouter = () => {
         <Route path="/import/stored-files" element={renderAdminRoute(StoredFiles)} />
         <Route path="/leads/all-leads" element={renderAdminRoute(Leads)} />
         <Route path="/leads/add" element={renderAdminRoute(AddLead)} /> {/* ✅ Handles both add & edit */}
+        <Route path="/campaigns/sms" element={renderAdminRoute(SmsCampaign)} />
+        <Route path="/campaigns/email" element={renderAdminRoute(EmailCampaign)} />
 
         {/* User Route */}
         <Route path="/home" element={

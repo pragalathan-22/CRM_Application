@@ -121,13 +121,18 @@ const Leads = () => {
     <div className="min-h-screen bg-gray-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-6">
         <div className="flex flex-col md:flex-row justify-between mb-4 gap-4">
-          <h2 className="text-3xl font-bold text-gray-800">📊 Leads Pipeline</h2>
+          <div>
+            <h2 className="text-3xl font-bold text-gray-800">📊 Leads Pipeline</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Showing <strong>{filteredLeads.length}</strong> out of <strong>{leads.length}</strong> total leads
+            </p>
+          </div>
           <input
             type="text"
             placeholder="Search company, contact, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 px-4 py-2 rounded-md"
+            className="border border-gray-300 px-4 py-2 rounded-md self-start"
           />
         </div>
 

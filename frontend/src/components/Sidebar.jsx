@@ -56,15 +56,15 @@ const Sidebar = () => {
         { name: 'Add Lead', path: '/leads/add' },
       ],
     },
-    {
-      name: 'Deals',
-      icon: <Handshake className="w-5 h-5" />,
-      key: 'deals',
-      subRoutes: [
-        { name: 'All Deals', path: '/deals' },
-        { name: 'New Deal', path: '/deals/add' },
-      ],
-    },
+    // {
+    //   name: 'Deals',
+    //   icon: <Handshake className="w-5 h-5" />,
+    //   key: 'deals',
+    //   subRoutes: [
+    //     { name: 'All Deals', path: '/deals' },
+    //     { name: 'New Deal', path: '/deals/add' },
+    //   ],
+    // },
     {
       name: 'Import',
       icon: <Import className="w-5 h-5" />,
@@ -74,15 +74,15 @@ const Sidebar = () => {
         { name: 'Stored Files', path: '/Import/stored-files' },
       ],
     },
-    {
-      name: 'Tasks',
-      icon: <CheckSquare className="w-5 h-5" />,
-      key: 'tasks',
-      subRoutes: [
-        { name: 'All Tasks', path: '/tasks' },
-        { name: 'Create Task', path: '/tasks/create' },
-      ],
-    },
+    // {
+    //   name: 'Tasks',
+    //   icon: <CheckSquare className="w-5 h-5" />,
+    //   key: 'tasks',
+    //   subRoutes: [
+    //     { name: 'All Tasks', path: '/tasks' },
+    //     { name: 'Create Task', path: '/tasks/create' },
+    //   ],
+    // },
     {
       name: 'Campaigns',
       icon: <Mail className="w-5 h-5" />,
