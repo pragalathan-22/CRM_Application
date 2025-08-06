@@ -136,6 +136,17 @@ app.post('/leads', verifyToken, async (req, res) => {
   }
 });
 
+// ✅ Get All Leads
+app.get('/leads', verifyToken, async (req, res) => {
+  try {
+    const leads = await Lead.find().sort({ createdAt: -1 });
+    res.json(leads);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch leads', error: err });
+  }
+});
+
+
 app.put('/leads/:id', verifyToken, async (req, res) => {
   try {
     const leadId = req.params.id;

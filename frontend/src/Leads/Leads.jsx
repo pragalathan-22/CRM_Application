@@ -25,10 +25,9 @@ const Leads = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      const uniqueLeads = Array.from(new Map(response.data.map(lead => [lead._id, lead])).values());
-      setLeads(uniqueLeads);
+      setLeads(response.data);
     } catch (error) {
-      console.error('Error fetching leads:', error);
+      console.error('❌ Error fetching leads:', error);
     }
   };
 
@@ -39,8 +38,7 @@ const Leads = () => {
       await axios.put(`http://localhost:3000/leads/${id}`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const updated = leads.map(lead => lead._id === id ? { ...lead, status: newStatus } : lead);
-      setLeads(updated);
+      setLeads(leads.map(lead => lead._id === id ? { ...lead, status: newStatus } : lead));
     } catch (err) {
       alert('Failed to update status');
     }
@@ -53,8 +51,7 @@ const Leads = () => {
       await axios.put(`http://localhost:3000/leads/${id}`, { paymentStatus: newPaymentStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const updated = leads.map(lead => lead._id === id ? { ...lead, paymentStatus: newPaymentStatus } : lead);
-      setLeads(updated);
+      setLeads(leads.map(lead => lead._id === id ? { ...lead, paymentStatus: newPaymentStatus } : lead));
     } catch (err) {
       alert('Failed to update payment status');
     }
@@ -62,7 +59,7 @@ const Leads = () => {
 
   const handleSelectLead = (id) => {
     setSelectedLeads(prev =>
-      prev.includes(id) ? prev.filter(leadId => leadId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
 
@@ -80,13 +77,13 @@ const Leads = () => {
       const token = localStorage.getItem('token');
       await Promise.all(selectedLeads.map((id) =>
         axios.delete(`http://localhost:3000/leads/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` }
         })
       ));
       setLeads(leads.filter(lead => !selectedLeads.includes(lead._id)));
       setSelectedLeads([]);
-    } catch (error) {
-      alert('Failed to delete selected leads');
+    } catch (err) {
+      alert('Delete failed');
     }
   };
 
@@ -105,9 +102,9 @@ const Leads = () => {
   };
 
   const filteredLeads = leads
-    .filter((lead, index, arr) => {
+    .filter((lead, i, arr) => {
       if (!showDuplicates) return true;
-      return arr.findIndex(l => l.email === lead.email) !== index;
+      return arr.findIndex(l => l.email === lead.email) !== i;
     })
     .filter((lead) => {
       const statusMatch = filterStatus === 'All' || lead.status === filterStatus;
@@ -123,14 +120,14 @@ const Leads = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-10">
       <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
+        <div className="flex flex-col md:flex-row justify-between mb-4 gap-4">
           <h2 className="text-3xl font-bold text-gray-800">📊 Leads Pipeline</h2>
           <input
             type="text"
             placeholder="Search company, contact, email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-300 px-4 py-2 rounded-md"
           />
         </div>
 
@@ -216,7 +213,7 @@ const Leads = () => {
                     <select
                       value={lead.status}
                       onChange={(e) => handleStatusChange(lead._id, e.target.value)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium ${statusStyles[lead.status] || ''} border-none`}
+                      className={`px-2 py-1 rounded-md text-xs font-medium ${statusStyles[lead.status] || ''}`}
                     >
                       <option value="New">New</option>
                       <option value="Processing">Processing</option>
@@ -231,7 +228,7 @@ const Leads = () => {
                     <select
                       value={lead.paymentStatus || 'Not Yet'}
                       onChange={(e) => handlePaymentChange(lead._id, e.target.value)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium ${paymentStyles[lead.paymentStatus || 'Not Yet']} border-none`}
+                      className={`px-2 py-1 rounded-md text-xs font-medium ${paymentStyles[lead.paymentStatus || 'Not Yet']}`}
                     >
                       <option value="Not Yet">Not Yet</option>
                       <option value="Advanced Paid">Advanced Paid</option>
