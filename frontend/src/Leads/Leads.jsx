@@ -1,4 +1,3 @@
-// src/pages/Leads.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -135,7 +134,6 @@ const Leads = () => {
           />
         </div>
 
-        {/* Filter section */}
         <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
           <div className="flex flex-wrap gap-3">
             <label className="flex items-center gap-2">
@@ -176,7 +174,6 @@ const Leads = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full border text-sm text-left rounded-lg overflow-hidden">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
@@ -241,16 +238,14 @@ const Leads = () => {
                       <option value="Paid">Paid</option>
                     </select>
                   </td>
-<td className="px-6 py-4 border-b">
-  <button
-    onClick={() => navigate(`/leads/add?id=${lead._id}`)}
-    className="text-blue-600 hover:underline"
-  >
-    Edit
-  </button>
-</td>
-
-
+                  <td className="px-6 py-4 border-b">
+                    <button
+                      onClick={() => navigate(`/leads/add?id=${lead._id}`)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

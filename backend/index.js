@@ -6,10 +6,11 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Lead = require('./models/Lead');
-const Record = require('./models/Record'); // ✅ NEW
+const Record = require('./models/Record');
 const connectDB = require('./db');
 require('dotenv').config();
 
+// ✅ Connect DB
 connectDB();
 const app = express();
 app.use(cors());
@@ -33,6 +34,24 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
+
+// ✅ Helper Functions
+function formatStatus(status = '') {
+  const cleaned = status.trim().toLowerCase();
+  if (cleaned === 'completed') return 'Completed';
+  if (cleaned === 'processing') return 'Processing';
+  if (cleaned === 'new') return 'New';
+  if (cleaned === 'canceled') return 'Canceled';
+  if (cleaned === 'delay') return 'Delay';
+  return 'New'; // fallback
+}
+
+function formatPayment(payment = '') {
+  const cleaned = payment.trim().toLowerCase();
+  if (cleaned === 'paid') return 'Paid';
+  if (cleaned === 'not yet') return 'Not Yet';
+  return 'Not Yet'; // fallback
+}
 
 // ✅ Auth Routes
 app.post('/signup', async (req, res) => {
@@ -80,13 +99,7 @@ app.post('/login', async (req, res) => {
 // ✅ Lead Routes
 app.post('/leads', verifyToken, async (req, res) => {
   try {
-    const { company, contact, contactNumber, email, productName, quantity, value, address } = req.body;
-
-    if (!company || !contact || !email || !quantity || !value || !address) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    const newLead = new Lead({
+    const {
       company,
       contact,
       contactNumber,
@@ -95,21 +108,31 @@ app.post('/leads', verifyToken, async (req, res) => {
       quantity,
       value,
       address,
+      status = 'New',
+      paymentStatus = 'Not Yet',
+    } = req.body;
+
+    if (!company || !contact || !email || !quantity || !value || !address) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const newLead = new Lead({
+      company: company.trim(),
+      contact: contact.trim(),
+      contactNumber,
+      email: email.trim().toLowerCase(),
+      productName: productName.trim(),
+      quantity,
+      value,
+      address: address.trim(),
+      status: formatStatus(status),
+      paymentStatus: formatPayment(paymentStatus),
     });
 
     await newLead.save();
     res.status(201).json({ message: 'Lead added', lead: newLead });
   } catch (err) {
     res.status(500).json({ message: 'Add lead error', error: err });
-  }
-});
-
-app.get('/leads', verifyToken, async (req, res) => {
-  try {
-    const leads = await Lead.find().sort({ createdAt: -1 });
-    res.json(leads);
-  } catch (err) {
-    res.status(500).json({ message: 'Fetch leads error', error: err });
   }
 });
 
@@ -156,11 +179,27 @@ app.get('/leads/:id', verifyToken, async (req, res) => {
 // ✅ Excel Record Upload Route
 app.post('/records/upload', async (req, res) => {
   try {
-    const records = req.body;
+    let records = req.body;
 
     if (!Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ message: 'No records provided' });
     }
+
+    records = records.map((record) => {
+      return {
+        ...record,
+        Status: formatStatus(record.Status),
+        Payment: formatPayment(record.Payment),
+        "Company Name": record["Company Name"]?.trim(),
+        "Contact Name": record["Contact Name"]?.trim(),
+        "Contact Number": record["Contact Number"]?.toString().trim(),
+        Email: record.Email?.trim().toLowerCase(),
+        "Product Name": record["Product Name"]?.trim(),
+        Qty: record.Qty?.toString().trim(),
+        Price: record.Price?.toString().trim(),
+        Address: record.Address?.trim(),
+      };
+    });
 
     await Record.insertMany(records);
     res.status(201).json({ message: `${records.length} records uploaded successfully` });
@@ -169,7 +208,6 @@ app.post('/records/upload', async (req, res) => {
     res.status(500).json({ message: 'Upload error', error: err });
   }
 });
-
 
 // ✅ Get All Records
 app.get('/records', async (req, res) => {
@@ -182,10 +220,9 @@ app.get('/records', async (req, res) => {
   }
 });
 
-
+// ✅ Delete Record by ID
 app.delete('/records/:id', async (req, res) => {
   const id = req.params.id;
-  console.log('🗑️ DELETE request received for ID:', id);
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: 'Invalid ID format' });
@@ -203,6 +240,31 @@ app.delete('/records/:id', async (req, res) => {
   }
 });
 
+app.post('/sync-records-to-leads', async (req, res) => {
+  try {
+    const records = await Record.find();
+    let updatedCount = 0;
+
+    for (const record of records) {
+      const email = record.Email?.trim().toLowerCase();
+      const status = formatStatus(record.Status);
+      const payment = formatPayment(record.Payment);
+
+      const lead = await Lead.findOne({ email });
+      if (lead) {
+        lead.status = status;
+        lead.paymentStatus = payment;
+        await lead.save();
+        updatedCount++;
+      }
+    }
+
+    res.json({ message: `${updatedCount} leads updated from records.` });
+  } catch (err) {
+    console.error('❌ Sync error:', err);
+    res.status(500).json({ message: 'Sync failed', error: err });
+  }
+});
 
 
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));
