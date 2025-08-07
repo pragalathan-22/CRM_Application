@@ -97,7 +97,7 @@ const Sidebar = () => {
       icon: <FileText className="w-5 h-5" />,
       key: 'invoices',
       subRoutes: [
-        { name: 'All Invoices', path: '/invoices' },
+        { name: 'All Invoices', path: '/invoices/all' },
         { name: 'Create Invoice', path: '/invoices/create' },
       ],
     },

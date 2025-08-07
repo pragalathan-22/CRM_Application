@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Lead = require('./models/Lead');
 const Record = require('./models/Record');
+const Estimate = require('./models/Estimate');
 const connectDB = require('./db');
 require('dotenv').config();
 
@@ -274,6 +275,43 @@ app.post('/sync-records-to-leads', async (req, res) => {
   } catch (err) {
     console.error('❌ Sync error:', err);
     res.status(500).json({ message: 'Sync failed', error: err });
+  }
+});
+
+// POST Estimate
+app.post('/api/estimates', async (req, res) => {
+  try {
+    const estimate = new Estimate(req.body);
+    await estimate.save();
+    res.status(201).json({ message: 'Estimate saved successfully', estimate });
+  } catch (err) {
+    console.error('Error saving estimate:', err);
+    res.status(500).json({ message: 'Failed to save estimate' });
+  }
+});
+
+app.get('/api/estimates', async (req, res) => {
+  console.log('GET /api/estimates called');
+  try {
+    const estimates = await Estimate.find().sort({ createdAt: -1 });
+    res.json(estimates);
+  } catch (error) {
+    console.error('Error fetching estimates:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+// GET Estimate by ID
+app.get('/api/estimates/:id', async (req, res) => {
+  try {
+    const estimate = await Estimate.findById(req.params.id);
+    if (!estimate) return res.status(404).json({ message: 'Estimate not found' });
+    res.json(estimate);
+  } catch (err) {
+    console.error('Error fetching estimate by ID:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

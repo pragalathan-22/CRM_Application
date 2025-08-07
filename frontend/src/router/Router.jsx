@@ -24,6 +24,8 @@ import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import EmailCampaign from '../campaigns/EmailCampaign';
 import SmsCampaign from '../campaigns/SmsCampaign';
+import AllInvoices from '../invoices/AllInvoices';
+import CreateInvoice from '../invoices/CreateInvoice';
 
 // 🔒 Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -84,6 +86,8 @@ const AppRouter = () => {
         <Route path="/leads/add" element={renderAdminRoute(AddLead)} /> {/* ✅ Handles both add & edit */}
         <Route path="/campaigns/sms" element={renderAdminRoute(SmsCampaign)} />
         <Route path="/campaigns/email" element={renderAdminRoute(EmailCampaign)} />
+        <Route path="/invoices/all" element={renderAdminRoute(AllInvoices)} />
+        <Route path="/invoices/create" element={renderAdminRoute(CreateInvoice)} />
 
         {/* User Route */}
         <Route path="/home" element={
