@@ -25,7 +25,13 @@ const AllContacts = () => {
         contactNumber: lead.contactNumber,
       }));
 
-      setContacts(contactList);
+      // ✅ Remove duplicates by contactNumber
+      const uniqueContacts = contactList.filter(
+        (contact, index, self) =>
+          index === self.findIndex((c) => c.contactNumber === contact.contactNumber)
+      );
+
+      setContacts(uniqueContacts);
     } catch (error) {
       console.error('Error fetching contacts:', error);
     }
@@ -50,7 +56,6 @@ const AllContacts = () => {
   };
 
   const handleEdit = (id) => {
-    // Replace this with your route or modal logic
     alert(`Edit contact with ID: ${id}`);
   };
 

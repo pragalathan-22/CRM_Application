@@ -1,12 +1,18 @@
 import React from "react";
-import logoImage from '../assets/react.svg'; // Correct import from src/assets
+import logoImage from "../../assets/react.svg"; // Import the actual image
 
 const AllInvoices = () => {
+  const imageSrc = logoImage; // Use imported file directly
+
   return (
     <div className="p-6 text-sm text-gray-800 font-sans max-w-4xl mx-auto bg-white">
       {/* Logo */}
       <div className="text-center mb-2">
-        <img src={logoImage} alt="Company Logo" className="w-16 mx-auto" />
+        <img
+          src={imageSrc}
+          alt="Company Logo"
+          className="mx-auto max-w-[100px] w-full h-auto object-contain"
+        />
       </div>
 
       {/* Header */}

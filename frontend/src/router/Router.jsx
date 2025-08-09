@@ -12,20 +12,20 @@ import KPIs from '../pages/Dashboard/KPIs';
 import Home from '../pages/Home';
 import AllContacts from '../pages/Contacts/AllContacts';
 import AddContact from '../pages/Contacts/AddContact';
-import ImportFiles from '../Import/ImportFiles';
-import StoredFiles from '../Import/StoredFiles';
-import Leads from '../Leads/Leads';
-import AddLead from '../Leads/AddLead';
+import ImportFiles from '../pages/Import/ImportFiles';
+import StoredFiles from '../pages/Import/StoredFiles';
+import Leads from '../pages/Leads/Leads';
+import AddLead from '../pages/Leads/AddLead';
 
 // Context
 import { AuthContext } from '../context/AuthContext';
 
 // Admin Sidebar Layout
 import Sidebar from '../components/Sidebar';
-import EmailCampaign from '../campaigns/EmailCampaign';
-import SmsCampaign from '../campaigns/SmsCampaign';
-import AllInvoices from '../invoices/AllInvoices';
-import CreateInvoice from '../invoices/CreateInvoice';
+import EmailCampaign from '../pages/campaigns/EmailCampaign';
+import SmsCampaign from '../pages/campaigns/SmsCampaign';
+import AllInvoices from '../pages/invoices/AllInvoices';
+import CreateInvoice from '../pages/invoices/CreateInvoice';
 
 // 🔒 Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {

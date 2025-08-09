@@ -1,3 +1,125 @@
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
+
+// const Leads = () => {
+//   const [leads, setLeads] = useState([]);
+//   const [filterStatus, setFilterStatus] = useState('All');
+//   const [filterPayment, setFilterPayment] = useState('All');
+//   const [searchTerm, setSearchTerm] = useState('');
+//   const [selectedLeads, setSelectedLeads] = useState([]);
+//   const [showDuplicates, setShowDuplicates] = useState(false);
+//   const [startDate, setStartDate] = useState('');
+//   const [endDate, setEndDate] = useState('');
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     fetchLeads();
+//   }, []);
+
+//   const fetchLeads = async () => {
+//     try {
+//       const token = localStorage.getItem('token');
+//       const response = await axios.get('http://localhost:3000/leads', {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+//       setLeads(response.data);
+//     } catch (error) {
+//       console.error('❌ Error fetching leads:', error);
+//     }
+//   };
+
+//   const handleStatusChange = async (id, newStatus) => {
+//     if (!window.confirm(`Change status to "${newStatus}"?`)) return;
+//     try {
+//       const token = localStorage.getItem('token');
+//       await axios.put(`http://localhost:3000/leads/${id}`, { status: newStatus }, {
+//         headers: { Authorization: `Bearer ${token}` }
+//       });
+//       setLeads(leads.map(lead => lead._id === id ? { ...lead, status: newStatus } : lead));
+//     } catch (err) {
+//       alert('Failed to update status');
+//     }
+//   };
+
+//   const handlePaymentChange = async (id, newPaymentStatus) => {
+//     if (!window.confirm(`Change payment status to "${newPaymentStatus}"?`)) return;
+//     try {
+//       const token = localStorage.getItem('token');
+//       await axios.put(`http://localhost:3000/leads/${id}`, { paymentStatus: newPaymentStatus }, {
+//         headers: { Authorization: `Bearer ${token}` }
+//       });
+//       setLeads(leads.map(lead => lead._id === id ? { ...lead, paymentStatus: newPaymentStatus } : lead));
+//     } catch (err) {
+//       alert('Failed to update payment status');
+//     }
+//   };
+
+//   const handleSelectLead = (id) => {
+//     setSelectedLeads(prev =>
+//       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+//     );
+//   };
+
+//   const handleSelectAll = () => {
+//     if (selectedLeads.length === filteredLeads.length) {
+//       setSelectedLeads([]);
+//     } else {
+//       setSelectedLeads(filteredLeads.map(lead => lead._id));
+//     }
+//   };
+
+//   const handleDeleteSelected = async () => {
+//     if (!window.confirm('Delete selected leads?')) return;
+//     try {
+//       const token = localStorage.getItem('token');
+//       await Promise.all(selectedLeads.map((id) =>
+//         axios.delete(`http://localhost:3000/leads/${id}`, {
+//           headers: { Authorization: `Bearer ${token}` }
+//         })
+//       ));
+//       setLeads(leads.filter(lead => !selectedLeads.includes(lead._id)));
+//       setSelectedLeads([]);
+//     } catch (err) {
+//       alert('Delete failed');
+//     }
+//   };
+
+//   const statusStyles = {
+//     New: 'bg-blue-100 text-blue-700',
+//     Processing: 'bg-yellow-100 text-yellow-800',
+//     Delay: 'bg-red-100 text-red-700',
+//     Completed: 'bg-green-100 text-green-700',
+//     Canceled: 'bg-gray-200 text-gray-800',
+//   };
+
+//   const paymentStyles = {
+//     'Not Yet': 'bg-gray-100 text-gray-700',
+//     'Advanced Paid': 'bg-orange-100 text-orange-700',
+//     Paid: 'bg-green-100 text-green-700',
+//   };
+
+//   const filteredLeads = leads
+//     .filter((lead, i, arr) => {
+//       if (!showDuplicates) return true;
+//       return arr.findIndex(l => l.email === lead.email) !== i;
+//     })
+//     .filter((lead) => {
+//       const statusMatch = filterStatus === 'All' || lead.status === filterStatus;
+//       const paymentMatch = filterPayment === 'All' || (lead.paymentStatus || 'Not Yet') === filterPayment;
+//       const searchMatch = [lead.company, lead.contact, lead.email].join(' ').toLowerCase().includes(searchTerm.toLowerCase());
+//       const createdAt = new Date(lead.createdAt);
+//       const start = startDate ? new Date(startDate) : null;
+//       const end = endDate ? new Date(endDate) : null;
+//       const dateMatch = (!start || createdAt >= start) && (!end || createdAt <= end);
+//       return statusMatch && paymentMatch && searchMatch && dateMatch;
+//     });
+
+//   return (
+
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -101,10 +223,16 @@ const Leads = () => {
     Paid: 'bg-green-100 text-green-700',
   };
 
+  // ✅ Filter & remove duplicates by same date
   const filteredLeads = leads
     .filter((lead, i, arr) => {
       if (!showDuplicates) return true;
-      return arr.findIndex(l => l.email === lead.email) !== i;
+
+      // Get date without time
+      const leadDate = new Date(lead.createdAt).toISOString().split('T')[0];
+      return arr.findIndex(l =>
+        new Date(l.createdAt).toISOString().split('T')[0] === leadDate
+      ) !== i;
     })
     .filter((lead) => {
       const statusMatch = filterStatus === 'All' || lead.status === filterStatus;
