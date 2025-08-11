@@ -1,1 +1,45 @@
 @import "tailwindcss";
+
+/* Make sure colors are preserved in print */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important; /* Safari/Chrome */
+    print-color-adjust: exact !important; /* Modern browsers */
+    color-adjust: exact !important; /* Older spec */
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #printArea, 
+  #printArea * {
+    visibility: visible;
+  }
+
+  #printArea {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 0; /* Removes default print margins */
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .estimate-print-container {
+    margin-top: 0 !important;
+    padding-top: 10mm !important; /* Adjust if you want some space */
+  }
+}
