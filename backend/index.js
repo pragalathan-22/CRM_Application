@@ -9,6 +9,7 @@ const Lead = require('./models/Lead');
 const Record = require('./models/Record');
 const Estimate = require('./models/Estimate');
 const connectDB = require('./db');
+const Invoice = require('./models/Invoice');
 require('dotenv').config();
 
 // ✅ Connect DB
@@ -314,6 +315,61 @@ app.get('/api/estimates/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// Save invoice
+app.post("/api/invoices", async (req, res) => {
+  try {
+    const invoice = new Invoice(req.body);
+    const saved = await invoice.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Get all invoices
+app.get("/api/invoices", async (req, res) => {
+  try {
+    const invoices = await Invoice.find().sort({ createdAt: -1 });
+    res.json(invoices);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update invoice
+app.put("/api/invoices/:id", async (req, res) => {
+  try {
+    const updatedInvoice = await Invoice.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedInvoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+
+    res.json(updatedInvoice);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete invoice
+app.delete("/api/invoices/:id", async (req, res) => {
+  try {
+    const deletedInvoice = await Invoice.findByIdAndDelete(req.params.id);
+    if (!deletedInvoice) {
+      return res.status(404).json({ message: "Invoice not found" });
+    }
+    res.json({ message: "Invoice deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 
 
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));
