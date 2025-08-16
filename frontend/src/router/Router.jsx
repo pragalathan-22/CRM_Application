@@ -26,6 +26,12 @@ import EmailCampaign from '../pages/campaigns/EmailCampaign';
 import SmsCampaign from '../pages/campaigns/SmsCampaign';
 import AllInvoices from '../pages/invoices/AllInvoices';
 import CreateInvoice from '../pages/invoices/CreateInvoice';
+import profile from '../pages/Settings/profile';
+import notifications from '../pages/Settings/notifications';
+import AddMembers from '../pages/team/AddMembers';
+import AllInvoice from '../pages/invoices/AllInvoices';
+import AllMembers from '../pages/team/AllMembers';
+
 
 // 🔒 Protected Route Component
 const ProtectedRoute = ({ children, adminOnly = false }) => {
@@ -88,6 +94,9 @@ const AppRouter = () => {
         <Route path="/campaigns/email" element={renderAdminRoute(EmailCampaign)} />
         <Route path="/invoices/all" element={renderAdminRoute(AllInvoices)} />
         <Route path="/invoices/create" element={renderAdminRoute(CreateInvoice)} />
+        <Route path="/settings/profile" element={renderAdminRoute(profile)} />
+        <Route path="/settings/notifications" element={renderAdminRoute(notifications)} />\
+        <Route path="/team/add-members" element={renderAdminRoute(AddMembers)} />
 
         {/* User Route */}
         <Route path="/home" element={

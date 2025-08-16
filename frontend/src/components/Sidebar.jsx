@@ -74,15 +74,6 @@ const Sidebar = () => {
         { name: 'Stored Files', path: '/Import/stored-files' },
       ],
     },
-    // {
-    //   name: 'Tasks',
-    //   icon: <CheckSquare className="w-5 h-5" />,
-    //   key: 'tasks',
-    //   subRoutes: [
-    //     { name: 'All Tasks', path: '/tasks' },
-    //     { name: 'Create Task', path: '/tasks/create' },
-    //   ],
-    // },
     {
       name: 'Campaigns',
       icon: <Mail className="w-5 h-5" />,
@@ -102,23 +93,32 @@ const Sidebar = () => {
       ],
     },
     {
-      name: 'Reports',
-      icon: <BarChart3 className="w-5 h-5" />,
-      key: 'reports',
-      subRoutes: [
-        { name: 'Sales Reports', path: '/reports/sales' },
-        { name: 'Activity Logs', path: '/reports/logs' },
-      ],
-    },
-    {
-      name: 'Support',
-      icon: <LifeBuoy className="w-5 h-5" />,
-      key: 'support',
-      subRoutes: [
-        { name: 'Tickets', path: '/support/tickets' },
-        { name: 'FAQs', path: '/support/faqs' },
-      ],
-    },
+  name: 'Team',
+  icon: <CheckSquare className="w-5 h-5" />,
+  key: 'team',
+  subRoutes: [
+    // { name: 'All Members', path: '/team/all-members' },
+    { name: 'Team Member', path: '/team/add-members' },
+  ],
+},
+    // {
+    //   name: 'Reports',
+    //   icon: <BarChart3 className="w-5 h-5" />,
+    //   key: 'reports',
+    //   subRoutes: [
+    //     { name: 'Sales Reports', path: '/reports/sales' },
+    //     { name: 'Activity Logs', path: '/reports/logs' },
+    //   ],
+    // },
+    // {
+    //   name: 'Support',
+    //   icon: <LifeBuoy className="w-5 h-5" />,
+    //   key: 'support',
+    //   subRoutes: [
+    //     { name: 'Tickets', path: '/support/tickets' },
+    //     { name: 'FAQs', path: '/support/faqs' },
+    //   ],
+    // },
     {
       name: 'Settings',
       icon: <Settings className="w-5 h-5" />,

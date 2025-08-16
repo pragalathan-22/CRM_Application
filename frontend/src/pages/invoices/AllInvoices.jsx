@@ -52,7 +52,13 @@ export default function AllInvoice() {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...(editInvoice.items || [])];
-    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    
+    // Convert numerical fields to a number type
+    const newValue = ["quantity", "rate", "discount"].includes(field)
+      ? Number(value)
+      : value;
+
+    updatedItems[index] = { ...updatedItems[index], [field]: newValue };
     setEditInvoice((prev) => ({ ...prev, items: updatedItems }));
   };
 

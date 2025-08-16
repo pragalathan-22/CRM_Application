@@ -10,6 +10,8 @@ const Record = require('./models/Record');
 const Estimate = require('./models/Estimate');
 const connectDB = require('./db');
 const Invoice = require('./models/Invoice');
+const Admin = require('./models/Admin');
+const Member = require("./models/Member");
 require('dotenv').config();
 
 // ✅ Connect DB
@@ -279,42 +281,42 @@ app.post('/sync-records-to-leads', async (req, res) => {
   }
 });
 
-// POST Estimate
-app.post('/api/estimates', async (req, res) => {
-  try {
-    const estimate = new Estimate(req.body);
-    await estimate.save();
-    res.status(201).json({ message: 'Estimate saved successfully', estimate });
-  } catch (err) {
-    console.error('Error saving estimate:', err);
-    res.status(500).json({ message: 'Failed to save estimate' });
-  }
-});
+// // POST Estimate
+// app.post('/api/estimates', async (req, res) => {
+//   try {
+//     const estimate = new Estimate(req.body);
+//     await estimate.save();
+//     res.status(201).json({ message: 'Estimate saved successfully', estimate });
+//   } catch (err) {
+//     console.error('Error saving estimate:', err);
+//     res.status(500).json({ message: 'Failed to save estimate' });
+//   }
+// });
 
-app.get('/api/estimates', async (req, res) => {
-  console.log('GET /api/estimates called');
-  try {
-    const estimates = await Estimate.find().sort({ createdAt: -1 });
-    res.json(estimates);
-  } catch (error) {
-    console.error('Error fetching estimates:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// app.get('/api/estimates', async (req, res) => {
+//   console.log('GET /api/estimates called');
+//   try {
+//     const estimates = await Estimate.find().sort({ createdAt: -1 });
+//     res.json(estimates);
+//   } catch (error) {
+//     console.error('Error fetching estimates:', error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
 
 
-// GET Estimate by ID
-app.get('/api/estimates/:id', async (req, res) => {
-  try {
-    const estimate = await Estimate.findById(req.params.id);
-    if (!estimate) return res.status(404).json({ message: 'Estimate not found' });
-    res.json(estimate);
-  } catch (err) {
-    console.error('Error fetching estimate by ID:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+// // GET Estimate by ID
+// app.get('/api/estimates/:id', async (req, res) => {
+//   try {
+//     const estimate = await Estimate.findById(req.params.id);
+//     if (!estimate) return res.status(404).json({ message: 'Estimate not found' });
+//     res.json(estimate);
+//   } catch (err) {
+//     console.error('Error fetching estimate by ID:', err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
 // Save invoice
 app.post("/api/invoices", async (req, res) => {
@@ -369,7 +371,101 @@ app.delete("/api/invoices/:id", async (req, res) => {
   }
 });
 
+app.post("/api/admin", async (req, res) => {
+  try {
+    const { email } = req.body;
 
+    let admin = await Admin.findOne({ email });
+
+    if (admin) {
+      // Update existing admin
+      admin = await Admin.findOneAndUpdate({ email }, req.body, { new: true });
+      return res.json({ message: "Admin updated successfully", admin });
+    } else {
+      // Create new admin
+      const newAdmin = new Admin(req.body);
+      await newAdmin.save();
+      return res.json({ message: "Admin created successfully", admin: newAdmin });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Get Admin Details
+app.get("/api/admin/:email", async (req, res) => {
+  try {
+    const admin = await Admin.findOne({ email: req.params.email });
+    if (!admin) return res.status(404).json({ error: "Admin not found" });
+    res.json(admin);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+
+// ✅ GET all members
+app.get("/api/members", async (req, res) => {
+  try {
+    const members = await Member.find().sort({ createdAt: -1 });
+    res.json(members);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch members" });
+  }
+});
+
+// ✅ GET single member
+app.get("/api/members/:id", async (req, res) => {
+  try {
+    const member = await Member.findById(req.params.id);
+    if (!member) return res.status(404).json({ error: "Member not found" });
+    res.json(member);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch member" });
+  }
+});
+
+// ✅ CREATE member
+app.post("/api/members", async (req, res) => {
+  try {
+    const { name, phone, email, joiningDate, relievedDate } = req.body;
+    const newMember = new Member({ name, phone, email, joiningDate, relievedDate });
+    await newMember.save();
+    res.status(201).json(newMember);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ✅ UPDATE member
+app.put("/api/members/:id", async (req, res) => {
+  try {
+    const updatedMember = await Member.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedMember) return res.status(404).json({ error: "Member not found" });
+    res.json(updatedMember);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ✅ DELETE member
+app.delete("/api/members/:id", async (req, res) => {
+  try {
+    const deletedMember = await Member.findByIdAndDelete(req.params.id);
+    if (!deletedMember) return res.status(404).json({ error: "Member not found" });
+    res.json({ message: "Member deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete member" });
+  }
+});
 
 
 app.listen(3000, () => console.log('🚀 Server running on port 3000'));
