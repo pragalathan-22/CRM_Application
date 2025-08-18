@@ -306,79 +306,85 @@ const Leads = () => {
 
         <div className="overflow-x-auto">
           <table className="min-w-full border text-sm text-left rounded-lg overflow-hidden">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-3 border-b">
-                  <input
-                    type="checkbox"
-                    checked={selectedLeads.length === filteredLeads.length && filteredLeads.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th className="px-6 py-3 border-b">Company</th>
-                <th className="px-6 py-3 border-b">Contact</th>
-                <th className="px-6 py-3 border-b">Contact Number</th>
-                <th className="px-6 py-3 border-b">Email</th>
-                <th className="px-6 py-3 border-b">Address</th>
-                <th className="px-6 py-3 border-b">Status</th>
-                <th className="px-6 py-3 border-b">Quantity</th>
-                <th className="px-6 py-3 border-b">Value</th>
-                <th className="px-6 py-3 border-b">Payment</th>
-                <th className="px-6 py-3 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeads.map((lead) => (
-                <tr key={lead._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 border-b">
-                    <input
-                      type="checkbox"
-                      checked={selectedLeads.includes(lead._id)}
-                      onChange={() => handleSelectLead(lead._id)}
-                    />
-                  </td>
-                  <td className="px-6 py-4 border-b">{lead.company}</td>
-                  <td className="px-6 py-4 border-b">{lead.contact}</td>
-                  <td className="px-6 py-4 border-b">{lead.contactNumber || '-'}</td>
-                  <td className="px-6 py-4 border-b">{lead.email}</td>
-                  <td className="px-6 py-4 border-b">{lead.address || '-'}</td>
-                  <td className="px-6 py-4 border-b">
-                    <select
-                      value={lead.status}
-                      onChange={(e) => handleStatusChange(lead._id, e.target.value)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium ${statusStyles[lead.status] || ''}`}
-                    >
-                      <option value="New">New</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Delay">Delay</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Canceled">Canceled</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 border-b">{lead.quantity}</td>
-                  <td className="px-6 py-4 border-b font-semibold text-gray-800">{lead.value}</td>
-                  <td className="px-6 py-4 border-b">
-                    <select
-                      value={lead.paymentStatus || 'Not Yet'}
-                      onChange={(e) => handlePaymentChange(lead._id, e.target.value)}
-                      className={`px-2 py-1 rounded-md text-xs font-medium ${paymentStyles[lead.paymentStatus || 'Not Yet']}`}
-                    >
-                      <option value="Not Yet">Not Yet</option>
-                      <option value="Advanced Paid">Advanced Paid</option>
-                      <option value="Paid">Paid</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 border-b">
-                    <button
-                      onClick={() => navigate(`/leads/add?id=${lead._id}`)}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+<thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+  <tr>
+    <th className="px-4 py-3 border-b">
+      <input
+        type="checkbox"
+        checked={selectedLeads.length === filteredLeads.length && filteredLeads.length > 0}
+        onChange={handleSelectAll}
+      />
+    </th>
+    <th className="px-6 py-3 border-b">Company</th>
+    <th className="px-6 py-3 border-b">Contact</th>
+    <th className="px-6 py-3 border-b">Contact Number</th>
+    <th className="px-6 py-3 border-b">Email</th>
+    <th className="px-6 py-3 border-b">Address</th>
+    <th className="px-6 py-3 border-b">Leads Taken</th> {/* 👈 New */}
+    <th className="px-6 py-3 border-b">Status</th>
+    <th className="px-6 py-3 border-b">Quantity</th>
+    <th className="px-6 py-3 border-b">Value</th>
+    <th className="px-6 py-3 border-b">Payment</th>
+    <th className="px-6 py-3 border-b">Actions</th>
+  </tr>
+</thead>
+
+<tbody>
+  {filteredLeads.map((lead) => (
+    <tr key={lead._id} className="hover:bg-gray-50">
+      <td className="px-4 py-4 border-b">
+        <input
+          type="checkbox"
+          checked={selectedLeads.includes(lead._id)}
+          onChange={() => handleSelectLead(lead._id)}
+        />
+      </td>
+      <td className="px-6 py-4 border-b">{lead.company}</td>
+      <td className="px-6 py-4 border-b">{lead.contact}</td>
+      <td className="px-6 py-4 border-b">{lead.contactNumber || '-'}</td>
+      <td className="px-6 py-4 border-b">{lead.email}</td>
+      <td className="px-6 py-4 border-b">{lead.address || '-'}</td>
+      <td className="px-6 py-4 border-b font-medium text-indigo-700">
+        {lead.assignedTo || 'Unassigned'} {/* 👈 New */}
+      </td>
+      <td className="px-6 py-4 border-b">
+        <select
+          value={lead.status}
+          onChange={(e) => handleStatusChange(lead._id, e.target.value)}
+          className={`px-2 py-1 rounded-md text-xs font-medium ${statusStyles[lead.status] || ''}`}
+        >
+          <option value="New">New</option>
+          <option value="Processing">Processing</option>
+          <option value="Delay">Delay</option>
+          <option value="Completed">Completed</option>
+          <option value="Canceled">Canceled</option>
+        </select>
+      </td>
+      <td className="px-6 py-4 border-b">{lead.quantity}</td>
+      <td className="px-6 py-4 border-b font-semibold text-gray-800">{lead.value}</td>
+      <td className="px-6 py-4 border-b">
+        <select
+          value={lead.paymentStatus || 'Not Yet'}
+          onChange={(e) => handlePaymentChange(lead._id, e.target.value)}
+          className={`px-2 py-1 rounded-md text-xs font-medium ${paymentStyles[lead.paymentStatus || 'Not Yet']}`}
+        >
+          <option value="Not Yet">Not Yet</option>
+          <option value="Advanced Paid">Advanced Paid</option>
+          <option value="Paid">Paid</option>
+        </select>
+      </td>
+      <td className="px-6 py-4 border-b">
+        <button
+          onClick={() => navigate(`/leads/add?id=${lead._id}`)}
+          className="text-blue-600 hover:underline"
+        >
+          Edit
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
           </table>
 
           {filteredLeads.length === 0 && (

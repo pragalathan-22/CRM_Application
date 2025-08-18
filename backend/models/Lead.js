@@ -11,9 +11,10 @@ const leadSchema = new mongoose.Schema({
   address: { type: String, default: '' },
   status: { type: String, default: 'New' },
   paymentStatus: { type: String, default: 'Not Yet' },
+  assignedTo: { type: String, required: true },//new field for employee assignment
   createdAt: { type: Date, default: Date.now },
 });
-
+  
 module.exports = mongoose.model('Lead', leadSchema);
 
 

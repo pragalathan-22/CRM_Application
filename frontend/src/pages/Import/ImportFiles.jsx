@@ -1,17 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import axios from 'axios';
 
 const ImportFiles = () => {
   const [excelData, setExcelData] = useState([]);
   const [message, setMessage] = useState('');
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
 
-  const handleFileUpload = async (e) => {
+  // Fetch working employees on mount
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/members');
+        // Only include employees who have no relievedDate
+        const activeEmployees = res.data.filter(emp => !emp.relievedDate);
+        setEmployees(activeEmployees);
+      } catch (err) {
+        console.error(err);
+        setMessage('❌ Failed to load employees');
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  // 🔹 Step 1: Parse file and preview
+  const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (evt) => {
+    reader.onload = (evt) => {
       const bstr = evt.target.result;
       const wb = XLSX.read(bstr, { type: 'binary' });
       const wsname = wb.SheetNames[0];
@@ -34,18 +53,33 @@ const ImportFiles = () => {
       });
 
       setExcelData(formatted);
-      setMessage(`✅ Parsed ${formatted.length} rows`);
-
-      try {
-        await axios.post('http://localhost:3000/records/upload', formatted);
-        setMessage(`✅ Uploaded ${formatted.length} rows to MongoDB`);
-      } catch (err) {
-        console.error(err);
-        setMessage('❌ Failed to upload to server');
-      }
+      setMessage(`✅ Parsed ${formatted.length} rows, ready to upload`);
     };
 
     reader.readAsBinaryString(file);
+  };
+
+  // 🔹 Step 2: Upload to backend
+  const handleUpload = async () => {
+    if (!selectedEmployee) {
+      setMessage('⚠️ Please select an employee before uploading');
+      return;
+    }
+    if (excelData.length === 0) {
+      setMessage('⚠️ Please select and parse an Excel file first');
+      return;
+    }
+
+    try {
+      await axios.post('http://localhost:3000/records/upload', {
+        employeeId: selectedEmployee,
+        records: excelData,
+      });
+      setMessage(`✅ Uploaded ${excelData.length} rows to MongoDB for employee`);
+    } catch (err) {
+      console.error(err);
+      setMessage('❌ Failed to upload to server');
+    }
   };
 
   return (
@@ -53,6 +87,26 @@ const ImportFiles = () => {
       <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">📥 Import Excel File</h2>
 
+        {/* Employee Dropdown */}
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-medium text-gray-700">
+            Select Employee
+          </label>
+          <select
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+            className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">-- Select Employee --</option>
+            {employees.map((emp) => (
+              <option key={emp._id} value={emp._id}>
+                {emp.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* File Upload */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium text-gray-700">
             Upload Excel File (.xlsx)
@@ -60,13 +114,24 @@ const ImportFiles = () => {
           <input
             type="file"
             accept=".xlsx,.xls"
-            onChange={handleFileUpload}
+            onChange={handleFileSelect}
             className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {message && <p className="text-green-600 mb-4 font-medium">{message}</p>}
+        {/* Upload Button */}
+        {excelData.length > 0 && (
+          <button
+            onClick={handleUpload}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            🚀 Upload to Server
+          </button>
+        )}
 
+        {message && <p className="text-green-600 mb-4 mt-4 font-medium">{message}</p>}
+
+        {/* Preview Table */}
         {excelData.length > 0 && (
           <div className="overflow-x-auto mt-6 border-t pt-4">
             <table className="min-w-full text-sm text-left text-gray-600 border">

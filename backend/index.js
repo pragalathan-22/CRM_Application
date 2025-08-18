@@ -114,9 +114,10 @@ app.post('/leads', verifyToken, async (req, res) => {
       address,
       status = 'New',
       paymentStatus = 'Not Yet',
+      assignedTo,
     } = req.body;
 
-    if (!company || !contact || !email || !quantity || !value || !address) {
+    if (!company || !contact || !email || !quantity || !value || !address || !assignedTo) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -131,6 +132,7 @@ app.post('/leads', verifyToken, async (req, res) => {
       address: address.trim(),
       status: formatStatus(status),
       paymentStatus: formatPayment(paymentStatus),
+      assignedTo: assignedTo.trim(),//new field for employee assignment
     });
 
     await newLead.save();
@@ -191,95 +193,162 @@ app.get('/leads/:id', verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Excel Record Upload Route
+
+// Upload route
 app.post('/records/upload', async (req, res) => {
   try {
-    let records = req.body;
+    let { employeeId, records } = req.body;
 
-    if (!Array.isArray(records) || records.length === 0) {
-      return res.status(400).json({ message: 'No records provided' });
+    if (!employeeId || !mongoose.Types.ObjectId.isValid(employeeId)) {
+      return res.status(400).json({ message: "Invalid or missing employeeId" });
     }
 
-    records = records.map((record) => {
-      return {
-        ...record,
-        Status: formatStatus(record.Status),
-        Payment: formatPayment(record.Payment),
-        "Company Name": record["Company Name"]?.trim(),
-        "Contact Name": record["Contact Name"]?.trim(),
-        "Contact Number": record["Contact Number"]?.toString().trim(),
-        Email: record.Email?.trim().toLowerCase(),
-        "Product Name": record["Product Name"]?.trim(),
-        Qty: record.Qty?.toString().trim(),
-        Price: record.Price?.toString().trim(),
-        Address: record.Address?.trim(),
-      };
-    });
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({ message: "No records provided" });
+    }
+
+    // 🔹 find employee name using ID
+    const employee = await Member.findById(employeeId).select("name");
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Attach employee name to each record
+    records = records.map((record) => ({
+      ...record,
+      Status: formatStatus(record.Status),
+      Payment: formatPayment(record.Payment),
+      "Company Name": record["Company Name"]?.trim(),
+      "Contact Name": record["Contact Name"]?.trim(),
+      "Contact Number": record["Contact Number"]?.toString().trim(),
+      Email: record.Email?.trim().toLowerCase(),
+      "Product Name": record["Product Name"]?.trim(),
+      Qty: record.Qty?.toString().trim(),
+      Price: record.Price?.toString().trim(),
+      Address: record.Address?.trim(),
+      employee: employee.name, // ✅ store employee name instead of id
+    }));
 
     await Record.insertMany(records);
     res.status(201).json({ message: `${records.length} records uploaded successfully` });
   } catch (err) {
-    console.error('❌ Upload failed:', err);
-    res.status(500).json({ message: 'Upload error', error: err });
+    console.error("❌ Upload failed:", err);
+    res.status(500).json({ message: "Upload error", error: err });
   }
 });
 
-// ✅ Get All Records
+
 app.get('/records', async (req, res) => {
   try {
-    const records = await Record.find().select('-__v').sort({ _id: -1 });
+    const records = await Record.find().sort({ _id: -1 });
     res.json(records);
   } catch (err) {
-    console.error('❌ Error fetching records:', err);
-    res.status(500).json({ message: 'Error fetching records', error: err });
+    console.error("❌ Error fetching records:", err);
+    res.status(500).json({ message: "Error fetching records", error: err });
   }
 });
+
 
 // ✅ Delete Record by ID
 app.delete('/records/:id', async (req, res) => {
   const id = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid ID format' });
+    return res.status(400).json({ message: "Invalid ID format" });
   }
 
   try {
     const deleted = await Record.findByIdAndDelete(id);
     if (!deleted) {
-      return res.status(404).json({ message: 'Record not found' });
+      return res.status(404).json({ message: "Record not found" });
     }
-    return res.json({ message: 'Deleted successfully' });
+    return res.json({ message: "Deleted successfully" });
   } catch (err) {
-    console.error('❌ Delete failed:', err);
-    return res.status(500).json({ message: 'Delete error', error: err });
+    console.error("❌ Delete failed:", err);
+    return res.status(500).json({ message: "Delete error", error: err });
   }
 });
 
-app.post('/sync-records-to-leads', async (req, res) => {
+app.post('/merge-records-to-leads', async (req, res) => {
   try {
-    const records = await Record.find();
+    const { recordIds } = req.body;
+
+    if (!recordIds || !Array.isArray(recordIds) || recordIds.length === 0) {
+      return res.status(400).json({ message: "No records selected" });
+    }
+
+    const records = await Record.find({ _id: { $in: recordIds } });
+
+    let createdCount = 0;
     let updatedCount = 0;
+    let skippedCount = 0;
 
     for (const record of records) {
-      const email = record.Email?.trim().toLowerCase();
+      const email = record.Email ? record.Email.trim().toLowerCase() : null;
+      if (!email) {
+        skippedCount++;
+        continue; // skip if no email
+      }
+
       const status = formatStatus(record.Status);
       const payment = formatPayment(record.Payment);
 
-      const lead = await Lead.findOne({ email });
+      const contactNumber = record["Contact Number"] && !isNaN(record["Contact Number"])
+        ? Number(record["Contact Number"])
+        : 0;
+
+      const quantity = record.Qty && !isNaN(record.Qty)
+        ? Number(record.Qty)
+        : 0;
+
+      // keep as string since schema expects String
+      const value = record.Price ? record.Price.toString().trim() : "";
+
+      let lead = await Lead.findOne({ email });
+
       if (lead) {
-        lead.status = status;
-        lead.paymentStatus = payment;
+        lead.company = record["Company Name"] || lead.company;
+        lead.contact = record["Contact Name"] || lead.contact;
+        lead.contactNumber = contactNumber || lead.contactNumber;
+        lead.productName = record["Product Name"] || lead.productName;
+        lead.quantity = quantity || lead.quantity;
+        lead.value = value || lead.value;
+        lead.address = record.Address || lead.address;
+        lead.status = status || lead.status;
+        lead.paymentStatus = payment || lead.paymentStatus;
+        lead.assignedTo = record.employee || lead.assignedTo;
+
         await lead.save();
         updatedCount++;
+      } else {
+        await Lead.create({
+          company: record["Company Name"] || "",
+          contact: record["Contact Name"] || "",
+          contactNumber,
+          email,
+          productName: record["Product Name"] || "",
+          quantity,
+          value,
+          address: record.Address || "",
+          status,
+          paymentStatus: payment,
+          assignedTo: record.employee || null,
+        });
+        createdCount++;
       }
     }
 
-    res.json({ message: `${updatedCount} leads updated from records.` });
+    res.json({
+      message: `✅ ${createdCount} leads created, ${updatedCount} leads updated, ⚠️ ${skippedCount} skipped.`,
+    });
+
   } catch (err) {
-    console.error('❌ Sync error:', err);
-    res.status(500).json({ message: 'Sync failed', error: err });
+    console.error("❌ Merge error:", err);
+    res.status(500).json({ message: "Merge failed", error: err.message });
   }
 });
+
+
 
 // // POST Estimate
 // app.post('/api/estimates', async (req, res) => {

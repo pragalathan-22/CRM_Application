@@ -1,4 +1,3 @@
-// models/Record.js
 const mongoose = require('mongoose');
 
 const recordSchema = new mongoose.Schema({
@@ -11,8 +10,14 @@ const recordSchema = new mongoose.Schema({
   Qty: String,
   Price: String,
   Address: String,
-  Status: String,       // ✅ Add this
-  Payment: String       // ✅ Add this
+  Status: String,
+  Payment: String,
+
+  // ✅ store name instead of ObjectId
+  employee: {
+    type: String,   // directly save employee name
+    required: true,
+  }
 }, {
   timestamps: true,
   versionKey: false
