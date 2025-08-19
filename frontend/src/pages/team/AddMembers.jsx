@@ -53,8 +53,13 @@ export default function AllMembers() {
     }
   };
 
-  // ✅ Edit member
+  // ✅ Edit member (with confirm)
   const handleEdit = (member) => {
+    const confirmEdit = window.confirm(
+      `Are you sure you want to edit details of ${member.name}?`
+    );
+    if (!confirmEdit) return;
+
     setIsEditing(true);
     setFormData({
       id: member._id,
@@ -79,8 +84,13 @@ export default function AllMembers() {
     }
   };
 
-  // ✅ Delete member
-  const handleDelete = async (id) => {
+  // ✅ Delete member (with confirm)
+  const handleDelete = async (id, name) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${name}?`
+    );
+    if (!confirmDelete) return;
+
     try {
       await axios.delete(`${API_URL}/${id}`);
       setMembers(members.filter((m) => m._id !== id));
@@ -183,11 +193,21 @@ export default function AllMembers() {
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-sm font-semibold text-gray-600">Name</th>
-              <th className="px-6 py-3 text-sm font-semibold text-gray-600">Phone</th>
-              <th className="px-6 py-3 text-sm font-semibold text-gray-600">Email</th>
-              <th className="px-6 py-3 text-sm font-semibold text-gray-600">Joining Date</th>
-              <th className="px-6 py-3 text-sm font-semibold text-gray-600">Relieved Date</th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-600">
+                Name
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-600">
+                Phone
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-600">
+                Email
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-600">
+                Joining Date
+              </th>
+              <th className="px-6 py-3 text-sm font-semibold text-gray-600">
+                Relieved Date
+              </th>
               <th className="px-6 py-3 text-sm font-semibold text-gray-600 text-right">
                 Actions
               </th>
@@ -213,7 +233,7 @@ export default function AllMembers() {
                     <Pencil size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(member._id)}
+                    onClick={() => handleDelete(member._id, member.name)}
                     className="text-red-600 hover:text-red-800"
                   >
                     <Trash2 size={18} />
@@ -223,7 +243,10 @@ export default function AllMembers() {
             ))}
             {members.length === 0 && (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                <td
+                  colSpan="6"
+                  className="px-6 py-4 text-center text-gray-500"
+                >
                   No members found. Add one above.
                 </td>
               </tr>

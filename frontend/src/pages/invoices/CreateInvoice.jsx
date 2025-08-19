@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logoImage from "../../assets/WhatsApp Image 2025-08-19 at 2.29.11 PM.jpeg";
 
 const CreateInvoice = () => {
-  const emptyItem = { name: "", hsn: "", quantity: 1, rate: 0, discount: 0 };
+  const emptyItem = { name: "", hsn: "", quantity: "", rate: "", discount: "" };
   const [formData, setFormData] = useState({
     estimateDate: "", estimateNumber: "", referenceNumber: "",
     dueDate: "", customerName: "", billingAddress: "",

@@ -1,4 +1,5 @@
 import React from "react";
+import logoImage from "../../assets/WhatsApp Image 2025-08-19 at 2.29.11 PM.jpeg"; 
 
 const Profile = () => {
   return (
@@ -7,7 +8,7 @@ const Profile = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-center gap-8">
           <img
-            src="https://via.placeholder.com/150"
+            src={logoImage}
             alt="CEO"
             className="w-36 h-36 rounded-full border-4 border-blue-500 object-cover shadow-lg"
           />
@@ -68,10 +69,10 @@ const Profile = () => {
             Contact Us
           </h2>
           <p className="text-gray-600 mb-2">
-            📍 Location: Chennai, India
+            📍 Location: Chengalpattu, India
           </p>
           <p className="text-gray-600 mb-2">
-            📧 Email: contact@newtonsky5.com
+            📧 Email: newtonsky5@gmail.com
           </p>
           <p className="text-gray-600">
             📞 Phone: +91 98765 43210

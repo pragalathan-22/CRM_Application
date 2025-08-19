@@ -126,7 +126,7 @@ const Sidebar = () => {
       key: 'settings',
       subRoutes: [
         { name: 'Profile', path: '/settings/profile' },
-        { name: 'Notifications', path: '/settings/notifications' },
+        // { name: 'Notifications', path: '/settings/notifications' },
       ],
     },
   ];
@@ -137,7 +137,7 @@ const Sidebar = () => {
         to="/dashboard/overview"
         className="p-6 font-extrabold text-2xl text-blue-700 border-b border-gray-100 tracking-tight select-none hover:text-blue-900 transition-colors"
       >
-        CRM Admin
+        Admin
       </NavLink>
 
       <nav className="flex-1 p-4 overflow-y-auto">
