@@ -90,6 +90,7 @@ const Sidebar = () => {
       subRoutes: [
         { name: 'All Invoices', path: '/invoices/all' },
         { name: 'Create Invoice', path: '/invoices/create' },
+        { name: 'Challan', path: '/invoices/challan' },
       ],
     },
     {

@@ -57,7 +57,7 @@ const Overview = () => {
     { title: 'New Leads (Last 5 Days)', value: newLeads, color: 'text-blue-600', bg: 'bg-blue-50' },
     { title: 'Deals Converted', value: dealsConverted, color: 'text-green-600', bg: 'bg-green-50' },
     { title: 'Deals Dropped', value: dealsDropped, color: 'text-red-600', bg: 'bg-red-50' },
-    { title: 'Revenue', value: `$${totalRevenue.toLocaleString()}`, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+    { title: 'Revenue', value: `${totalRevenue.toLocaleString()}`, color: 'text-indigo-600', bg: 'bg-indigo-50' },
   ];
 
   const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

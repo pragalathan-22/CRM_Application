@@ -1,4 +1,4 @@
-// ✅ StoredFiles.jsx (with employee filter + column + merge button)
+// ✅ StoredFiles.jsx (with employee filter + column + merge button + date-select)
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -77,31 +77,30 @@ const StoredFiles = () => {
     }
   };
 
+  // ✅ Merge multiple
+  const mergeSelected = async () => {
+    if (selectedIds.length === 0) {
+      return alert("Please select at least 1 row to merge.");
+    }
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "http://localhost:3000/merge-records-to-leads",
+        { recordIds: selectedIds },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-const mergeSelected = async () => {
-  if (selectedIds.length === 0) {
-    return alert("Please select at least 1 row to merge.");
-  }
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.post(
-      "http://localhost:3000/merge-records-to-leads", // ⚠️ use your backend port
-      { recordIds: selectedIds },
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
-    );
+      alert(res.data.message);
 
-    alert(res.data.message);
-
-    // ✅ Redirect to Leads page
-    window.location.href = "/leads";
-  } catch (err) {
-    console.error("❌ Merge failed:", err);
-    alert("❌ Merge failed. Check console for details.");
-  }
-};
-
+      // ✅ Redirect to Leads page
+      window.location.href = "/leads";
+    } catch (err) {
+      console.error("❌ Merge failed:", err);
+      alert("❌ Merge failed. Check console for details.");
+    }
+  };
 
   // ✅ Row editing
   const startEdit = (row) => {
@@ -217,117 +216,147 @@ const mergeSelected = async () => {
                   <th className="px-4 py-2 border-b text-center">Select</th>
                   {/* 🔹 Add Employee Column */}
                   <th className="px-4 py-2 border-b">Employee</th>
-{Object.keys(filteredData[0])
-  .filter((k) => !["__v", "_id", "employee"].includes(k))  // 👈 skip employee
-  .map((key, idx) => (
-    <th key={idx} className="px-4 py-2 border-b">
-      {key}
-    </th>
-  ))}
+                  {Object.keys(filteredData[0])
+                    .filter((k) => !["__v", "_id", "employee"].includes(k)) // 👈 skip employee
+                    .map((key, idx) => (
+                      <th key={idx} className="px-4 py-2 border-b">
+                        {key}
+                      </th>
+                    ))}
 
                   <th className="px-4 py-2 border-b text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(groupByDate(filteredData)).map(
-                  ([date, records]) => (
-                    <React.Fragment key={date}>
-                      {/* Group row */}
-                      <tr className="bg-blue-100">
-                        <td
-                          colSpan={
-                            (filteredData[0]
-                              ? Object.keys(filteredData[0]).length
-                              : 0) + 3
-                          }
-                          className="px-4 py-2 font-bold text-gray-800"
-                        >
-                          📅 {dayjs(date).format("DD-MM-YYYY")}
-                        </td>
-                      </tr>
+                  ([date, records]) => {
+                    const allSelected = records.every((r) =>
+                      selectedIds.includes(r._id)
+                    );
 
-                      {/* Data rows */}
-                      {records.map((row) => (
+                    const toggleDateSelect = () => {
+                      if (allSelected) {
+                        // deselect all of that date
+                        setSelectedIds((prev) =>
+                          prev.filter(
+                            (id) => !records.some((r) => r._id === id)
+                          )
+                        );
+                      } else {
+                        // select all of that date
+                        setSelectedIds((prev) => [
+                          ...new Set([...prev, ...records.map((r) => r._id)]),
+                        ]);
+                      }
+                    };
+
+                    return (
+                      <React.Fragment key={date}>
+                        {/* Group row (clickable) */}
                         <tr
-                          key={row._id}
-                          className={`hover:bg-gray-50 ${
-                            duplicates.includes(row._id)
-                              ? "bg-yellow-100"
-                              : ""
-                          }`}
+                          className="bg-blue-100 cursor-pointer hover:bg-blue-200"
+                          onClick={toggleDateSelect}
                         >
-                          <td className="px-2 py-2 border-b text-center">
-                            <input
-                              type="checkbox"
-                              checked={selectedIds.includes(row._id)}
-                              onChange={() => toggleSelect(row._id)}
-                            />
-                          </td>
-
-                          {/* Employee Column */}
-                          <td className="px-4 py-2 border-b font-medium text-gray-800">
-                            {row.employee || "-"}
-                          </td>
-
-{Object.entries(row)
-  .filter(([key]) => !["__v", "_id", "employee"].includes(key))  // 👈 skip employee
-  .map(([key, value], i) => {
-
-                              let displayValue = value;
-                              if (key === "Status")
-                                displayValue = formatStatus(value);
-                              if (key === "Payment")
-                                displayValue = formatPayment(value);
-
-                              return (
-                                <td key={i} className="px-4 py-2 border-b">
-                                  {editRowId === row._id ? (
-                                    <input
-                                      value={editData[key] || ""}
-                                      onChange={(e) =>
-                                        setEditData({
-                                          ...editData,
-                                          [key]: e.target.value,
-                                        })
-                                      }
-                                      className="border rounded px-2 py-1 w-full"
-                                    />
-                                  ) : (
-                                    displayValue?.toString() || "-"
-                                  )}
-                                </td>
-                              );
-                            })}
-
-                          <td className="px-4 py-2 border-b text-center">
-                            {editRowId === row._id ? (
-                              <div className="flex gap-2 justify-center">
-                                <button
-                                  onClick={saveEdit}
-                                  className="text-green-600"
-                                >
-                                  💾 Save
-                                </button>
-                                <button
-                                  onClick={cancelEdit}
-                                  className="text-gray-500"
-                                >
-                                  ✖ Cancel
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => startEdit(row)}
-                                className="text-blue-600"
-                              >
-                                ✏️ Edit
-                              </button>
-                            )}
+                          <td
+                            colSpan={
+                              (filteredData[0]
+                                ? Object.keys(filteredData[0]).length
+                                : 0) + 3
+                            }
+                            className="px-4 py-2 font-bold text-gray-800"
+                          >
+                            📅 {dayjs(date).format("DD-MM-YYYY")}{" "}
+                            <span className="ml-2 text-sm text-gray-600">
+                              ({allSelected ? "Deselect All" : "Select All"})
+                            </span>
                           </td>
                         </tr>
-                      ))}
-                    </React.Fragment>
-                  )
+
+                        {/* Data rows */}
+                        {records.map((row) => (
+                          <tr
+                            key={row._id}
+                            className={`hover:bg-gray-50 ${
+                              duplicates.includes(row._id)
+                                ? "bg-yellow-100"
+                                : ""
+                            }`}
+                          >
+                            <td className="px-2 py-2 border-b text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(row._id)}
+                                onChange={() => toggleSelect(row._id)}
+                              />
+                            </td>
+
+                            {/* Employee Column */}
+                            <td className="px-4 py-2 border-b font-medium text-gray-800">
+                              {row.employee || "-"}
+                            </td>
+
+                            {Object.entries(row)
+                              .filter(
+                                ([key]) =>
+                                  !["__v", "_id", "employee"].includes(key)
+                              )
+                              .map(([key, value], i) => {
+                                let displayValue = value;
+                                if (key === "Status")
+                                  displayValue = formatStatus(value);
+                                if (key === "Payment")
+                                  displayValue = formatPayment(value);
+
+                                return (
+                                  <td key={i} className="px-4 py-2 border-b">
+                                    {editRowId === row._id ? (
+                                      <input
+                                        value={editData[key] || ""}
+                                        onChange={(e) =>
+                                          setEditData({
+                                            ...editData,
+                                            [key]: e.target.value,
+                                          })
+                                        }
+                                        className="border rounded px-2 py-1 w-full"
+                                      />
+                                    ) : (
+                                      displayValue?.toString() || "-"
+                                    )}
+                                  </td>
+                                );
+                              })}
+
+                            <td className="px-4 py-2 border-b text-center">
+                              {editRowId === row._id ? (
+                                <div className="flex gap-2 justify-center">
+                                  <button
+                                    onClick={saveEdit}
+                                    className="text-green-600"
+                                  >
+                                    💾 Save
+                                  </button>
+                                  <button
+                                    onClick={cancelEdit}
+                                    className="text-gray-500"
+                                  >
+                                    ✖ Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => startEdit(row)}
+                                  className="text-blue-600"
+                                >
+                                  ✏️ Edit
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  }
                 )}
               </tbody>
             </table>

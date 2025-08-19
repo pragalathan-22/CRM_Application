@@ -4,5 +4,8 @@ module.exports = {
   theme: {
     extend: {},
   },
+    corePlugins: {
+    colorAdjust: false, // Disable the deprecated utility
+  },
   plugins: [],
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import logoImage from "../../assets/react.svg";
+import logoImage from "../../assets/WhatsApp Image 2025-08-19 at 2.29.11 PM.jpeg";
 
 const CreateInvoice = () => {
   const emptyItem = { name: "", hsn: "", quantity: 1, rate: 0, discount: 0 };
@@ -67,7 +67,7 @@ const handleSubmit = async (e) => {
     <div style={{ width: "210mm", minHeight: "297mm", padding: "20mm", background: "#fff", margin: "0 auto", boxShadow: "0 0 5px rgba(0,0,0,0.1)", color: "black" }}>
       <div id="printArea" className="p-6 text-sm text-gray-800 font-sans max-w-4xl mx-auto">
         {/* Logo */}
-        <div className="flex justify-center mb-4"><img src={logoImage} alt="Company Logo" className="max-w-[100px]" /></div>
+        <div className="flex justify-center mb-4"><img src={logoImage} alt="Company Logo" className="max-w-[50px]" /></div>
         {/* Print Button */}
         <div className="flex justify-end mb-4 no-print">
           <button onClick={() => window.print()} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Print</button>

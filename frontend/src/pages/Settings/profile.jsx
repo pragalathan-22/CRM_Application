@@ -1,232 +1,84 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from "react";
 
 const Profile = () => {
-  const [admin, setAdmin] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [isAddingNew, setIsAddingNew] = useState(false);
-
-  // Fetch admin details from backend
-  useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/admin")
-      .then((res) => {
-        if (res.data) {
-          // If admin has a relieving date → add new admin mode
-          if (res.data.relievingDate) {
-            setIsAddingNew(true);
-            setAdmin(getEmptyAdmin());
-          } else {
-            setAdmin(res.data);
-            setIsEditing(false);
-          }
-        } else {
-          setAdmin(getEmptyAdmin());
-          setIsEditing(true);
-          setIsAddingNew(true);
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching admin:", err);
-        setAdmin(getEmptyAdmin());
-        setIsEditing(true);
-        setIsAddingNew(true);
-        setLoading(false);
-      });
-  }, []);
-
-  const getEmptyAdmin = () => ({
-    name: "",
-    role: "Admin",
-    email: "",
-    phone: "",
-    department: "",
-    joiningDate: "",
-    relievingDate: "",
-    location: "",
-    profileImage: "",
-  });
-
-  const handleChange = (e) => {
-    setAdmin({ ...admin, [e.target.name]: e.target.value });
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageURL = URL.createObjectURL(file);
-      setAdmin({ ...admin, profileImage: imageURL });
-      // Optional: upload file to server/cloud here
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      const res = await fetch("http://localhost:3000/api/admin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(admin),
-      });
-      const data = await res.json();
-      console.log("✅ Saved Admin Details:", data);
-      setIsEditing(false);
-      setIsAddingNew(false);
-    } catch (error) {
-      console.error("❌ Error saving admin:", error);
-    }
-  };
-
-  if (loading) {
-    return <p className="text-center mt-10">Loading...</p>;
-  }
-
   return (
-    <>
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl mx-auto">
-        {/* Profile Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative">
-          <div className="relative">
-            <img
-              src={admin.profileImage || "https://via.placeholder.com/150"}
-              alt="Admin Profile"
-              className="w-28 h-28 rounded-full border-4 border-blue-500 object-cover shadow-md cursor-pointer"
-              onClick={() => admin.profileImage && setIsImageModalOpen(true)}
-            />
-            {isEditing && (
-              <label
-                htmlFor="profileImageInput"
-                className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded-full cursor-pointer shadow hover:bg-blue-700"
-              >
-                📷
-              </label>
-            )}
-            <input
-              type="file"
-              id="profileImageInput"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </div>
-
-          <div className="text-center sm:text-left">
-            {isEditing ? (
-              <input
-                type="text"
-                name="name"
-                value={admin.name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-                className="text-2xl font-semibold text-gray-800 border rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            ) : (
-              <h1 className="text-2xl font-semibold text-gray-800">
-                {admin.name}
-              </h1>
-            )}
-            <p className="text-gray-500">
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="role"
-                  value={admin.role}
-                  onChange={handleChange}
-                  placeholder="Role"
-                  className="border rounded-lg px-2 py-1 mt-1"
-                />
-              ) : (
-                admin.role
-              )}
+    <div className="bg-gray-100 min-h-screen py-12 px-6">
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl p-10">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-center gap-8">
+          <img
+            src="https://via.placeholder.com/150"
+            alt="CEO"
+            className="w-36 h-36 rounded-full border-4 border-blue-500 object-cover shadow-lg"
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800">
+              Sugan K.
+            </h1>
+            <p className="text-blue-600 font-semibold text-lg">
+              Chief Executive Officer
+            </p>
+            <p className="text-gray-500 mt-2">
+              Driving innovation and growth at <span className="font-bold">Newtonsky5</span>.
             </p>
           </div>
         </div>
 
-        {/* Details Grid */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {[
-            { label: "Email", name: "email" },
-            { label: "Phone", name: "phone" },
-            { label: "Department", name: "department" },
-            { label: "Joining Date", name: "joiningDate", type: "date" },
-            { label: "Relieving Date", name: "relievingDate", type: "date" },
-            { label: "Location", name: "location" },
-          ].map((field) => (
-            <div key={field.name}>
-              <p className="text-gray-500">{field.label}</p>
-              {isEditing ? (
-                <input
-                  type={field.type || "text"}
-                  name={field.name}
-                  value={admin[field.name] || ""}
-                  onChange={handleChange}
-                  placeholder={`Enter ${field.label.toLowerCase()}`}
-                  className="w-full border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              ) : (
-                <p className="font-medium">{admin[field.name] || "—"}</p>
-              )}
-            </div>
-          ))}
+        {/* Company Overview */}
+        <div className="mt-10">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            About Newtonsky5
+          </h2>
+          <p className="text-gray-600 leading-relaxed">
+            Newtonsky5 is a forward-thinking technology company committed to 
+            delivering next-generation digital solutions. Our mission is to 
+            empower businesses and individuals with smart, scalable, and 
+            secure technology. We specialize in software development, IoT 
+            integrations, AI-powered automation, and digital transformation 
+            consulting.
+          </p>
         </div>
 
-        {/* Buttons */}
-        <div className="mt-8 flex justify-end gap-4">
-          {isEditing ? (
-            <>
-              <button
-                onClick={() => {
-                  if (isAddingNew) {
-                    setAdmin(getEmptyAdmin());
-                  }
-                  setIsEditing(false);
-                }}
-                className="px-5 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-              >
-                {isAddingNew ? "Add Admin" : "Save"}
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              {isAddingNew ? "Add Admin" : "Edit Details"}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Full Screen Image Modal */}
-      {isImageModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <div className="relative">
-            <img
-              src={admin.profileImage}
-              alt="Large Profile"
-              className="w-full max-w-4xl rounded-lg shadow-lg"
-            />
-            <button
-              className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 text-black font-bold shadow hover:bg-gray-200"
-              onClick={() => setIsImageModalOpen(false)}
-            >
-              ✕
-            </button>
+        {/* Company Values */}
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="bg-blue-50 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+            <h3 className="text-xl font-semibold text-blue-700 mb-2">Innovation</h3>
+            <p className="text-gray-600 text-sm">
+              We push boundaries to bring cutting-edge solutions that make 
+              businesses future-ready.
+            </p>
+          </div>
+          <div className="bg-blue-50 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+            <h3 className="text-xl font-semibold text-blue-700 mb-2">Integrity</h3>
+            <p className="text-gray-600 text-sm">
+              Transparency and trust are at the core of everything we build and deliver.
+            </p>
+          </div>
+          <div className="bg-blue-50 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+            <h3 className="text-xl font-semibold text-blue-700 mb-2">Excellence</h3>
+            <p className="text-gray-600 text-sm">
+              Our goal is to exceed expectations by delivering high-quality and reliable services.
+            </p>
           </div>
         </div>
-      )}
-    </>
+
+        {/* Contact Section */}
+        <div className="mt-12 border-t pt-8">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            Contact Us
+          </h2>
+          <p className="text-gray-600 mb-2">
+            📍 Location: Chennai, India
+          </p>
+          <p className="text-gray-600 mb-2">
+            📧 Email: contact@newtonsky5.com
+          </p>
+          <p className="text-gray-600">
+            📞 Phone: +91 98765 43210
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -5,6 +5,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 // Auth Pages
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import About from '../About';
+import Contact from '../Contact';
+
 
 // Admin Pages
 import Overview from '../pages/Dashboard/Overview';
@@ -29,6 +32,7 @@ import CreateInvoice from '../pages/invoices/CreateInvoice';
 import profile from '../pages/Settings/profile';
 import notifications from '../pages/Settings/notifications';
 import AddMembers from '../pages/team/AddMembers';
+import Challan from '../pages/invoices/Challan';
 
 
 
@@ -79,6 +83,8 @@ const AppRouter = () => {
         {/* Public Routes */}
         <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/about" element={<PublicRoute><About /></PublicRoute>} />
+        <Route path="/contact" element={<PublicRoute><Contact /></PublicRoute>} />
 
         {/* Admin Protected Routes */}
         <Route path="/dashboard/overview" element={renderAdminRoute(Overview)} />
@@ -96,6 +102,7 @@ const AppRouter = () => {
         <Route path="/settings/profile" element={renderAdminRoute(profile)} />
         <Route path="/settings/notifications" element={renderAdminRoute(notifications)} />\
         <Route path="/team/add-members" element={renderAdminRoute(AddMembers)} />
+        <Route path="/invoices/challan" element={renderAdminRoute(Challan)} />
 
         {/* User Route */}
         <Route path="/home" element={

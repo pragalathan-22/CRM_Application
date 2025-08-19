@@ -1,8 +1,8 @@
 // src/components/AllInvoice.jsx
 import React, { useEffect, useState } from "react";
-import logoImage from "../../assets/WhatsApp Image 2025-08-19 at 2.29.11 PM.jpeg";
+import logoImage from "../../assets/WhatsApp Image 2025-08-19 at 2.29.11 PM.jpeg"; 
 
-export default function AllInvoice() {
+export default function challan() {
   const [invoices, setInvoices] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -250,7 +250,7 @@ export default function AllInvoice() {
 
             {/* Title */}
             <h2 className="text-center text-2xl font-bold text-red-600 mb-4">
-              ESTIMATE
+              Challan
             </h2>
 
             {/* Company Info */}
@@ -292,8 +292,8 @@ export default function AllInvoice() {
             {/* Estimate Details */}
             <div className="grid grid-cols-2 mb-4">
               {[
-                ["Estimate Date", savedEstimate.estimateDate],
-                ["Estimate No", savedEstimate.estimateNumber],
+                ["challan Date", savedEstimate.estimateDate],
+                ["challan No", savedEstimate.estimateNumber],
                 ["Reference No", savedEstimate.referenceNumber || "-"],
                 ["Due Date", savedEstimate.dueDate],
               ].map(([label, val], i) => (
@@ -470,7 +470,7 @@ export default function AllInvoice() {
   // ===== LIST VIEW =====
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">All Estimates</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">All Challan</h1>
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
@@ -485,7 +485,7 @@ export default function AllInvoice() {
         <table className="w-full border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="border-b p-3 text-left">Estimate No</th>
+              <th className="border-b p-3 text-left">challan No</th>
               <th className="border-b p-3 text-left">Customer Name</th>
               <th className="border-b p-3 text-left">Date</th>
               <th className="border-b p-3 text-center">Actions</th>
